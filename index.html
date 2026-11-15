@@ -211,10 +211,10 @@ details.lrules summary::-webkit-details-marker{display:none}
 details.lrules[open] summary{margin-bottom:12px}
 
 /* ---------- Kartenansicht (immer quer) ---------- */
-#v-karte,#v-zettel{display:none; position:fixed; inset:0; z-index:30; flex-direction:column; gap:8px; padding:10px 14px calc(10px + env(safe-area-inset-bottom)); background:var(--paper); background-image:radial-gradient(rgba(0,0,0,.06) 1px,transparent 1px); background-size:18px 18px}
+#v-karte,#v-zettel{display:none; position:fixed; top:var(--vpt,0px); left:0; right:0; height:var(--vph,100%); z-index:30; flex-direction:column; gap:8px; padding:calc(8px + env(safe-area-inset-top)) max(16px, calc(env(safe-area-inset-right) + 8px)) calc(10px + env(safe-area-inset-bottom)) max(16px, calc(env(safe-area-inset-left) + 8px)); background:var(--paper); background-image:radial-gradient(rgba(0,0,0,.06) 1px,transparent 1px); background-size:18px 18px}
 #v-karte.active,#v-zettel.active{display:flex}
 @media (orientation:portrait){
-  #v-karte,#v-zettel{inset:auto; top:0; left:0; width:100vh; height:100vw; transform-origin:top left; transform:translateX(100vw) rotate(90deg)}
+  #v-karte,#v-zettel{inset:auto; top:0; left:0; right:auto; width:100vh; height:100vw; padding:10px 14px 10px; transform-origin:top left; transform:translateX(100vw) rotate(90deg)}
 }
 @supports (height:100dvh){
   @media (orientation:portrait){ #v-karte,#v-zettel{width:100dvh; height:100dvw; transform:translateX(100dvw) rotate(90deg)} }
@@ -252,6 +252,11 @@ details.lrules[open] summary{margin-bottom:12px}
 .s3-tot .g{justify-content:space-between; font-size:1em; margin-top:.6em}
 .s3-tot .g i{width:3.6em; height:2.6em; border-width:2px}
 
+#vspacer{height:0}
+body.ingame #vspacer{height:calc(100vh + 160px)}
+body.ingame{overscroll-behavior-y:none}
+.swhint{position:fixed; left:50%; bottom:calc(14px + env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:70; background:rgba(28,26,23,.9); color:#fff; padding:8px 16px; border-radius:999px; font-weight:700; font-size:.9rem; pointer-events:none}
+.swhint[hidden]{display:none}
 /* ---------- Digitaler Zettel (quer) ---------- */
 .zbar{display:flex; align-items:center; gap:8px}
 .zq{flex:1; min-width:0; text-align:center; line-height:1.15}
@@ -442,6 +447,9 @@ details.lrules[open] summary{margin-bottom:12px}
   <b>Bitte Handy quer halten</b>
 </div>
 
+<div id="vspacer"></div>
+<div class="swhint" id="swhint" hidden>Einmal nach oben wischen, dann wird mehr Platz frei</div>
+
 <div id="print-area"></div>
 
 <script>
@@ -480,7 +488,8 @@ function show(v, push = true){
   $$(".view").forEach(s => s.classList.toggle("active", s.id === "v-" + v));
   if(push) hist.push(v);
   if(v === "zettel") zEnter();
-  if(v === "zettel" || v === "karte") fsManualOff = false;
+  document.body.classList.toggle("ingame", v === "zettel" || v === "karte");
+  if(v === "zettel" || v === "karte"){ fsManualOff = false; swipeHint(); }
   setTimeout(fsSync, 0);
   window.scrollTo(0, 0);
 }
@@ -494,10 +503,17 @@ document.addEventListener("click", e => {
 function fitVp(){
   const vv = window.visualViewport, w = vv ? vv.width : innerWidth, h = vv ? vv.height : innerHeight, r = document.documentElement.style;
   r.setProperty("--vmn", Math.min(w, h) + "px"); r.setProperty("--vmx", Math.max(w, h) + "px");
+  r.setProperty("--vph", h + "px"); r.setProperty("--vpt", (vv ? vv.offsetTop : 0) + "px");
 }
 fitVp();
 window.addEventListener("resize", fitVp); window.addEventListener("orientationchange", () => setTimeout(fitVp, 250));
-if(window.visualViewport) visualViewport.addEventListener("resize", fitVp);
+if(window.visualViewport){ visualViewport.addEventListener("resize", fitVp); visualViewport.addEventListener("scroll", fitVp); }
+
+let swShown = false;
+function swipeHint(){
+  if(FS.can || swShown) return; swShown = true;
+  setTimeout(() => { if(isLand()){ $("#swhint").hidden = false; setTimeout(() => { $("#swhint").hidden = true; }, 5000); } }, 1500);
+}
 
 /* ---------- Vollbild ---------- */
 const FS = {
