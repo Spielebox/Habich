@@ -92,7 +92,7 @@ p.lead{margin:0 0 16px; opacity:.8}
 .sh-grid .b.side{height:var(--ch); flex-direction:column}
 .sh-grid .b.under{height:var(--bh)}
 .sh-grid .b i{display:flex; align-items:center; justify-content:center; font-style:normal; font-weight:900; width:2.5em; height:2.5em; border:1.5px solid #000; border-radius:6px}
-.sh-grid .c svg.st{position:absolute; right:.35em; top:.3em; width:1.7em; height:1.7em}
+.sh-grid .c svg.st{position:absolute; right:.35em; top:.3em; width:1.15em; height:1.15em}
 .sh-total{display:flex; flex-wrap:wrap; align-items:flex-end; gap:.6em 1em; margin-top:calc(var(--u)*.14); font-weight:800}
 .sh-total span.f{display:inline-flex; align-items:flex-end; gap:.35em}
 .sh-total span.f i{display:inline-block; width:3.4em; border-bottom:1.5px solid #000; height:1.3em}
@@ -242,17 +242,17 @@ details.lrules[open] summary{margin-bottom:12px}
 .sheet.s3{--cw:min(calc((100vw - 64px)/4.7),66px); --ch:calc(var(--cw)*.5); --u:var(--ch); --bw:calc(var(--cw)*.3); --bh:calc(var(--ch)*.46);
   font-size:calc(var(--cw)*.085); display:flex; gap:calc(var(--cw)*.15); align-items:stretch; padding:calc(var(--cw)*.12)}
 .s3-l{flex:none}
-.s3-r{flex:1; display:flex; flex-direction:column; justify-content:space-between; min-width:calc(var(--cw)*.8)}
+.s3-r{flex:1; display:flex; flex-direction:column; justify-content:flex-start; gap:calc(var(--ch)*.28); min-width:calc(var(--cw)*.8)}
 .s3 .sh-title{font-size:calc(var(--cw)*.15); text-align:center; display:block; padding:.1em .25em .14em; border-radius:.5em .5em .5em 3px}
 .s3 .sh-title small{display:block; margin:.05em 0 0; font-size:.55em}
 .s3-r .sh-name{flex:none; min-width:0; margin-top:.8em; font-size:.9em}
 .s3-r .line{flex:1; border-bottom:1.5px solid #000; height:1.3em}
-.s3-tot .r{display:flex; align-items:center; gap:.3em; margin-top:.4em; font-weight:800; font-size:.92em}
+.s3-tot .r{display:flex; align-items:center; gap:.3em; margin-top:.55em; font-weight:800; font-size:.92em}
 .s3-tot .r svg{width:2.3em; height:1.8em; flex:none}
 .s3-tot .r span{flex:1; white-space:nowrap}
-.s3-tot .r i{display:block; width:2.3em; height:1.8em; border:1.5px solid #000; border-radius:4px; flex:none}
+.s3-tot .r i{display:block; width:3.3em; height:2.4em; border:1.5px solid #000; border-radius:4px; flex:none}
 .s3-tot .g{justify-content:space-between; font-size:1em; margin-top:.6em}
-.s3-tot .g i{width:3em; height:2em; border-width:2px}
+.s3-tot .g i{width:3.6em; height:2.6em; border-width:2px}
 
 /* ---------- Druck ---------- */
 #print-area{display:none}
@@ -326,10 +326,11 @@ details.lrules[open] summary{margin-bottom:12px}
   <section class="view" id="v-plan">
     <div class="topbar"><button class="btn small alt" data-back>‹ Zurück</button></div>
     <h2>Zettel drucken</h2>
-    <p class="lead">Komplett schwarz-weiß, ohne Flächen – spart Tinte. Ein Zettel gilt für eine Runde, für ein ganzes Spiel braucht jede Person also 3 Zettel.</p>
+    <p class="lead">Komplett schwarz-weiß, ohne Flächen – spart Tinte. Jede Person bekommt einen Zettel. Mit „Beidseitig“ ist die Rückseite ebenfalls bedruckt, dann reicht ein Zettel für zwei Spiele (im Druckdialog beidseitig einstellen).</p>
     <div class="row" style="margin-bottom:12px">
       <label class="n">Personen <input type="number" class="s" id="nplayers" min="1" max="12" value="4"></label>
-      <label class="n">Runden <select id="nrounds"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option></select></label>
+      <label class="n"><input type="checkbox" id="duplex" style="width:22px;height:22px"> Beidseitig</label>
+      
     </div>
     <div class="row">
       <button class="btn red" id="b-printplan">Drucken</button>
@@ -555,7 +556,7 @@ function sheet3HTML(){
       <div><div class="sh-title">${esc(GAME)}<small>…auch!</small></div>
       <div class="sh-name">Name <span class="line"></span></div></div>
       <div class="s3-tot">
-        <div class="r"><svg viewBox="0 0 24 16" fill="none" stroke="#000" stroke-width="1.6" stroke-linecap="round"><path d="M6 10 C3 5 9 1.5 15 2.2 C21.5 3 23 9 18.5 12.8 C14 15.5 6.5 14.5 4.5 10.2 C3.5 7.5 5.5 5 8.5 4.2"/></svg><span>× 1</span><i></i></div>
+        <div class="r"><svg viewBox="0 0 24 16" fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round"><path d="M6.8,4.5 Q9.5,3.3 11.2,3.0 Q12.9,2.8 14.6,3.0 Q16.4,3.2 17.8,3.9 Q19.3,4.5 20.3,5.5 Q21.2,6.5 21.5,7.6 Q21.7,8.8 21.1,10.0 Q20.6,11.1 19.3,12.0 Q18.0,13.0 16.1,13.5 Q14.3,14.0 12.2,14.1 Q10.1,14.1 8.2,13.6 Q6.2,13.1 4.7,12.1 Q3.3,11.2 2.5,9.9 Q1.8,8.6 1.9,7.2 Q2.1,5.8 3.2,4.5 Q4.3,3.3 6.1,2.4 L8.0,1.5"/></svg><span>× 1</span><i></i></div>
         <div class="r"><svg viewBox="-26 -26 52 52" fill="none" stroke="#000" stroke-width="3" stroke-linejoin="round"><path d="${roundPoly(SV, 2.6)}"/></svg><span>× 2</span><i></i></div>
         <div class="r"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1"><rect x="2" y="2" width="20" height="20"/><line x1="8.7" y1="2" x2="8.7" y2="22"/><line x1="15.3" y1="2" x2="15.3" y2="22"/><line x1="2" y1="8.7" x2="22" y2="8.7"/><line x1="2" y1="15.3" x2="22" y2="15.3"/><rect x="2" y="2" width="20" height="6.7" stroke-width="2.4"/><rect x="2" y="2" width="6.7" height="20" stroke-width="2.4"/></svg><span>1·2·3</span><i></i></div>
         <div class="r g"><span>Gesamt</span><i></i></div>
@@ -565,20 +566,20 @@ function sheet3HTML(){
 }
 function planInfo(){
   const n = Math.max(1, Math.min(12, parseInt($("#nplayers").value, 10) || 1));
-  const sheets = n * (+$("#nrounds").value);
-  const pages = Math.ceil(sheets / 3);
-  $("#plansum").textContent = sheets + " Zettel auf " + pages + (pages === 1 ? " Seite" : " Seiten");
-  return sheets;
+  const dup = $("#duplex").checked, pages = Math.ceil(n / 3);
+  $("#plansum").textContent = n + (n === 1 ? " Zettel" : " Zettel") + " auf " + pages + (dup ? (pages === 1 ? " Blatt (beidseitig, 2 Spiele je Zettel)" : " Blättern (beidseitig, 2 Spiele je Zettel)") : (pages === 1 ? " Seite" : " Seiten"));
+  return n;
 }
 function renderPrev(){ $("#planprev").innerHTML = sheet3HTML(); planInfo(); }
 $("#nplayers").addEventListener("input", planInfo);
-$("#nrounds").addEventListener("change", planInfo);
+$("#duplex").addEventListener("change", planInfo);
 $("#b-printplan").addEventListener("click", () => {
-  const sheets = planInfo(), one = sheet3HTML();
+  const sheets = planInfo(), one = sheet3HTML(), dup = $("#duplex").checked;
   let html = "";
   for(let i=0; i<sheets; i+=3){
     const cnt = Math.min(3, sheets - i);
-    html += `<div class="ppage three">` + Array.from({length:cnt}, () => one).join(`<div class="cut"></div>`) + `</div>`;
+    const page = `<div class="ppage three">` + Array.from({length:cnt}, () => one).join(`<div class="cut"></div>`) + `</div>`;
+    html += dup ? page + page : page;
   }
   doPrint("plan", html);
 });
