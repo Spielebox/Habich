@@ -211,7 +211,7 @@ details.lrules summary::-webkit-details-marker{display:none}
 details.lrules[open] summary{margin-bottom:12px}
 
 /* ---------- Kartenansicht (immer quer) ---------- */
-#v-karte,#v-zettel{display:none; position:fixed; top:var(--vpt,0px); left:0; right:0; height:var(--vph,100%); z-index:30; flex-direction:column; gap:8px; padding:calc(8px + env(safe-area-inset-top)) max(16px, calc(env(safe-area-inset-right) + 8px)) calc(10px + env(safe-area-inset-bottom)) max(16px, calc(env(safe-area-inset-left) + 8px)); background:var(--paper); background-image:radial-gradient(rgba(0,0,0,.06) 1px,transparent 1px); background-size:18px 18px}
+#v-karte,#v-zettel{display:none; position:fixed; top:var(--vpt,0px); left:0; right:0; height:var(--vph,100%); z-index:30; flex-direction:column; gap:8px; padding:calc(8px + env(safe-area-inset-top)) var(--padr,16px) calc(10px + env(safe-area-inset-bottom)) var(--padl,16px); background:var(--paper); background-image:radial-gradient(rgba(0,0,0,.06) 1px,transparent 1px); background-size:18px 18px}
 #v-karte.active,#v-zettel.active{display:flex}
 @media (orientation:portrait){
   #v-karte,#v-zettel{inset:auto; top:0; left:0; right:auto; width:100vh; height:100vw; padding:10px 14px 10px; transform-origin:top left; transform:translateX(100vw) rotate(90deg)}
@@ -264,7 +264,7 @@ body.ingame{overscroll-behavior-y:none}
 .zq b{font-size:clamp(.95rem,calc(var(--vmn,390px)*.036),1.4rem); font-weight:900}
 .zbody{flex:1; min-height:0; display:flex; gap:12px}
 .zleft{display:flex; flex-direction:column; align-items:flex-start; gap:8px; min-width:0}
-#v-zettel .dz{--chrome:185px; --ch:calc((var(--vmn,390px) - var(--chrome))/3); --cw:min(calc((var(--vmx,844px) - 280px)/3), calc(var(--ch)*3.2)); margin:0}
+#v-zettel .dz{--chrome:185px; --ch:calc((var(--vmn,390px) - var(--chrome))/3); --cw:min(calc((var(--vmx,844px) - 245px - var(--padl,16px) - var(--padr,16px))/3), calc(var(--ch)*3.2)); margin:0}
 @media (max-height:340px) and (orientation:landscape){ #v-zettel .dz{--chrome:160px} #v-karte,#v-zettel{padding-top:6px; padding-bottom:6px; gap:5px} #v-zettel .seg button{padding:.25em .7em} .zrs .zr{padding:1px 10px; margin-bottom:3px} }
 #v-zettel .seg button{padding:.35em .8em; font-size:.9rem}
 .zright{width:176px; flex:none; display:flex; flex-direction:column; justify-content:space-between}
@@ -500,9 +500,16 @@ document.addEventListener("click", e => {
 });
 
 /* ---------- sichtbare Fenstergröße (Safari: Adressleiste zählt nicht mit) ---------- */
+const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 function fitVp(){
   const vv = window.visualViewport, w = vv ? vv.width : innerWidth, h = vv ? vv.height : innerHeight, r = document.documentElement.style;
   r.setProperty("--vmn", Math.min(w, h) + "px"); r.setProperty("--vmx", Math.max(w, h) + "px");
+  const o = (typeof window.orientation === "number") ? window.orientation : 0, st = getComputedStyle(document.documentElement);
+  const near = 62; // Notch/Dynamic Island im Querformat (iPhone), falls env() 0 liefert
+  let l = 16, rr = 16;
+  if(w > h && isIOS){ if(o === 90) l = near; else if(o === -90) rr = near; else { l = rr = near; } }
+  r.setProperty("--padl", "max(" + l + "px, calc(env(safe-area-inset-left) + 8px))");
+  r.setProperty("--padr", "max(" + rr + "px, calc(env(safe-area-inset-right) + 8px))");
   r.setProperty("--vph", h + "px"); r.setProperty("--vpt", (vv ? vv.offsetTop : 0) + "px");
 }
 fitVp();
