@@ -840,20 +840,20 @@ window.addEventListener("resize", () => { if(!$("#pad").hidden){ padSize(); padD
 function rulesHTML(print){
   return `${print ? `<h1>${esc(GAME)} …auch!</h1>` : ""}
   <h3>Worum geht’s?</h3>
-  <p>Ihr bekommt 3 Kategorien und schreibt zu jeder heimlich 3 Begriffe auf. Danach lest ihr reihum Begriffe vor und findet heraus, was ihr gemeinsam gedacht habt. Es gibt keine falschen Antworten, nur solche, die sonst niemand hatte. Gespielt werden 3 Runden.</p>
+  <p>Ihr bekommt 3 Fragen und schreibt zu jeder heimlich 3 Begriffe auf. Danach lest ihr reihum Begriffe vor und findet heraus, was ihr gemeinsam gedacht habt. Es gibt keine falschen Antworten, nur solche, die sonst niemand hatte. Gespielt werden 3 Runden.</p>
   <h3>Das braucht ihr</h3>
   <ul><li>3 bis 8 Personen, ab ca. 10 Jahren</li><li>Pro Person und Runde einen Spielzettel (ausdrucken oder digital) und einen Stift</li><li>Ein Handy, das die Fragen zeigt (Tisch-Modus), oder jede Person spielt mit dem eigenen Handy in einer Lobby</li></ul>
-  <h3>Schreiben: 3 Karten, 9 Begriffe</h3>
+  <h3>Schreiben: 3 Fragen, 9 Begriffe</h3>
   <ol>
-    <li>Eine Karte wird gezogen und die Kategorie vorgelesen.</li>
+    <li>Eine Frage wird aufgedeckt und vorgelesen.</li>
     <li>Alle schreiben heimlich 3 passende Begriffe in beliebige freie Felder des 3×3-Rasters. Wohin ein Begriff kommt, entscheidet ihr selbst.</li>
-    <li>Auf dem eigenen Zettel darf kein Begriff doppelt stehen. Merkt euch, was ihr zu welcher Karte geschrieben habt.</li>
-    <li>Das wiederholt ihr mit der zweiten und dritten Karte. Danach ist das Raster voll.</li>
+    <li>Auf dem eigenen Zettel darf kein Begriff doppelt stehen. Merkt euch, was ihr zu welcher Frage geschrieben habt.</li>
+    <li>Das wiederholt ihr mit der zweiten und dritten Frage. Danach ist das Raster voll.</li>
   </ol>
   <h3>Vergleichen: reihum vorlesen</h3>
   <ol>
     <li>Eine Person wird zufällig bestimmt und liest einen ihrer Begriffe vor, den sie noch nicht umkreist oder durchgestrichen hat.</li>
-    <li>Alle prüfen, ob sie diesen Begriff auch aufgeschrieben haben (egal zu welcher Karte) und sagen nur „habe ich“ oder „habe ich nicht“.</li>
+    <li>Alle prüfen, ob sie diesen Begriff auch aufgeschrieben haben (egal zu welcher Frage) und sagen nur „habe ich“ oder „habe ich nicht“.</li>
     <li><b>Umkreisen:</b> Hat mindestens eine andere Person den Begriff, wird er bei allen Beteiligten umkreist. Das bringt je 1 Punkt.</li>
     <li><b>Durchstreichen:</b> Hat niemand ihn, streicht die vorlesende Person ihn durch. Das bringt 0 Punkte.</li>
     <li><b>Stern ausmalen:</b> Hatte genau eine andere Person denselben Begriff, malen beide den Stern im Feld aus. Das sind 2 Bonuspunkte für jede der beiden.</li>
@@ -872,7 +872,7 @@ function rulesHTML(print){
   <h3>Spielende</h3>
   <p>Nach 3 Runden zählt ihr die Rundenpunkte zusammen. Auf den Ausdrucken gilt jeder Zettel für eine Runde, notiert die Summen deshalb auf einem Blatt. Wer am Ende die meisten Punkte hat, gewinnt. Bei Gleichstand teilt ihr euch den Sieg.</p>
   <h3>Tipps</h3>
-  <ul><li>Denk nicht daran, was dir einfällt, sondern was <i>den anderen</i> einfällt.</li><li>Ein sicherer und ein mutiger Begriff pro Karte ist oft eine gute Mischung.</li><li>Lies zuerst die Begriffe vor, bei denen du dir unsicher bist, solange du noch freie Auswahl hast.</li></ul>`;
+  <ul><li>Denk nicht daran, was dir einfällt, sondern was <i>den anderen</i> einfällt.</li><li>Ein sicherer und ein mutiger Begriff pro Frage ist oft eine gute Mischung.</li><li>Lies zuerst die Begriffe vor, bei denen du dir unsicher bist, solange du noch freie Auswahl hast.</li></ul>`;
 }
 $("#rules").innerHTML = rulesHTML(false);
 $("#rules-lobby").innerHTML = rulesHTML(false);
