@@ -16,7 +16,7 @@ body{
   margin:0; background:var(--paper); color:var(--ink); font-family:var(--font);
   background-image:radial-gradient(rgba(0,0,0,.06) 1px,transparent 1px); background-size:18px 18px;
 }
-.wrap{max-width:760px; margin:0 auto; padding:18px 16px 110px}
+.wrap{max-width:760px; margin:0 auto; padding:18px 16px 40px}
 header{display:flex; align-items:center; gap:14px; margin:4px 0 22px; flex-wrap:wrap}
 .logo{
   display:inline-block; background:var(--red); color:#fff; font-weight:900; font-size:2.3rem; line-height:1;
@@ -28,16 +28,6 @@ header{display:flex; align-items:center; gap:14px; margin:4px 0 22px; flex-wrap:
 h2{font-size:1.5rem; margin:0 0 6px; font-weight:900}
 p.lead{margin:0 0 16px; opacity:.8}
 
-nav.tabs{
-  position:fixed; left:0; right:0; bottom:0; z-index:10; display:flex; justify-content:center; gap:6px;
-  padding:8px 8px calc(8px + env(safe-area-inset-bottom)); background:var(--ink);
-}
-.tab{
-  flex:1; max-width:130px; font:inherit; font-weight:800; font-size:.72rem; color:#fff; background:transparent;
-  border:2px solid transparent; border-radius:12px; padding:6px 2px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px;
-}
-.tab span.i{font-size:1.25rem; line-height:1}
-.tab.active{background:var(--sun); color:var(--ink)}
 
 .view{display:none}
 .view.active{display:block}
@@ -81,7 +71,7 @@ nav.tabs{
 
 /* ---------- Spielplan / Zettel (geteilt) ---------- */
 .sheet{
-  --u:min(25vw,104px); --bw:calc(var(--u)*.5); --bh:calc(var(--u)*.42);
+  --u:min(25vw,104px); --cw:var(--u); --ch:var(--u); --bw:calc(var(--u)*.5); --bh:calc(var(--u)*.42);
   font-size:calc(var(--u)*.14); background:#fff; color:#000; border:2.5px solid #000; border-radius:14px;
   padding:calc(var(--u)*.2); width:max-content; max-width:100%; margin:0 auto; line-height:1.25;
 }
@@ -90,8 +80,8 @@ nav.tabs{
 .sh-title small{font-size:.45em; font-weight:800; margin-left:.3em}
 .sh-name{flex:1; display:flex; align-items:flex-end; gap:.4em; font-weight:700; min-width:calc(var(--u)*1.2)}
 .sh-name .line{flex:1; border-bottom:1.5px solid #000; height:1.2em}
-.sh-grid{display:grid; grid-template-columns:repeat(3,var(--u)) var(--bw); gap:0}
-.sh-grid .c{height:var(--u); border:2px solid #000; margin:-1px; position:relative}
+.sh-grid{display:grid; grid-template-columns:repeat(3,var(--cw)) var(--bw); gap:0}
+.sh-grid .c{height:var(--ch); border:2px solid #000; margin:-1px; position:relative}
 .sh-grid .c .rn{position:absolute; left:.45em; top:.35em; font-weight:800; font-size:.8em; display:flex; align-items:center; gap:.25em}
 .sh-grid .c .rn i{display:inline-block; width:1.5em; height:1.5em; border:1.5px solid #000; border-radius:4px}
 .sh-grid .c .st{position:absolute; right:.3em; top:.1em; font-size:2.1em; line-height:1}
@@ -99,9 +89,10 @@ nav.tabs{
 .sh-cats span{flex:1; display:flex; align-items:flex-end; gap:.3em}
 .sh-cats span i{flex:1; border-bottom:1.5px solid #000; height:1.25em}
 .sh-grid .b{display:flex; align-items:center; justify-content:center; gap:.35em; font-weight:900; font-size:.95em}
-.sh-grid .b.side{height:var(--u); flex-direction:column}
+.sh-grid .b.side{height:var(--ch); flex-direction:column}
 .sh-grid .b.under{height:var(--bh)}
-.sh-grid .b i{display:block; width:1.9em; height:1.9em; border:2px solid #000; border-radius:6px}
+.sh-grid .b i{display:flex; align-items:center; justify-content:center; font-style:normal; font-weight:900; width:2.5em; height:2.5em; border:1.5px solid #000; border-radius:6px}
+.sh-grid .c svg.st{position:absolute; right:.35em; top:.3em; width:1.7em; height:1.7em}
 .sh-total{display:flex; flex-wrap:wrap; align-items:flex-end; gap:.6em 1em; margin-top:calc(var(--u)*.14); font-weight:800}
 .sh-total span.f{display:inline-flex; align-items:flex-end; gap:.35em}
 .sh-total span.f i{display:inline-block; width:3.4em; border-bottom:1.5px solid #000; height:1.3em}
@@ -196,11 +187,72 @@ table.pt{border-collapse:collapse; width:100%; min-width:360px}
   #v-zettel .zlay{display:grid; grid-template-columns:auto minmax(210px,1fr); gap:20px; align-items:start}
   .dz{--ch:min(17vh,72px); --cw:calc(var(--ch)*1.7); margin:8px 0 0}
   #v-zettel > .row{display:none}
-  nav.tabs{padding:4px 8px}
-  .tab{flex-direction:row; justify-content:center; gap:6px; font-size:.7rem; padding:4px 2px}
-  .tab span.i{font-size:1rem}
   .zsum{margin-top:14px}
 }
+
+
+/* ---------- Start / Menü ---------- */
+.hero{text-align:center; padding:26px 0 6px}
+.hero .logo{font-size:3.2rem}
+.hero .sub{font-weight:800; font-size:1.25rem; margin-top:16px}
+.hero .sub small{display:block; font-weight:600; opacity:.7; font-size:.9rem; margin-top:2px}
+.bigbtns{display:grid; gap:16px; margin:26px 0 18px}
+.bigbtn{font:inherit; text-align:left; color:var(--ink); background:var(--card); border:4px solid var(--ink); border-radius:22px; box-shadow:6px 6px 0 var(--ink); padding:18px 22px; cursor:pointer; display:flex; flex-direction:column; gap:3px; width:100%}
+.bigbtn b{font-size:1.5rem; font-weight:900}
+.bigbtn span{font-weight:600; opacity:.75}
+.bigbtn.a{background:#d9efe9}
+.bigbtn.b{background:#eadff7}
+.bigbtn:active{transform:translate(3px,3px); box-shadow:3px 3px 0 var(--ink)}
+.bigbtn:disabled{opacity:.55; cursor:default; box-shadow:3px 3px 0 var(--ink)}
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 12px}
+h3.sec{font-size:1rem; margin:18px 0 8px; font-weight:900}
+.lvnote{font-weight:600; font-size:.88rem; opacity:.7; margin:-6px 0 14px}
+details.lrules{margin-top:18px}
+details.lrules summary{font-weight:800; cursor:pointer; padding:10px 14px; background:#fff; border:3px solid var(--ink); border-radius:14px; box-shadow:3px 3px 0 var(--ink); list-style:none}
+details.lrules summary::-webkit-details-marker{display:none}
+details.lrules[open] summary{margin-bottom:12px}
+
+/* ---------- Kartenansicht (immer quer) ---------- */
+#v-karte{display:none; position:fixed; inset:0; z-index:30; flex-direction:column; gap:8px; padding:10px 14px calc(10px + env(safe-area-inset-bottom)); background:var(--paper); background-image:radial-gradient(rgba(0,0,0,.06) 1px,transparent 1px); background-size:18px 18px}
+#v-karte.active{display:flex}
+@media (orientation:portrait){
+  #v-karte{inset:auto; top:0; left:0; width:100vh; height:100vw; transform-origin:top left; transform:translateX(100vw) rotate(90deg)}
+}
+@supports (height:100dvh){
+  @media (orientation:portrait){ #v-karte{width:100dvh; height:100dvw; transform:translateX(100dvw) rotate(90deg)} }
+}
+.kbar{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.kbar .mid{font-weight:800; font-size:.95rem; text-align:center; flex:1}
+#v-karte .bigcard{flex:1; min-height:0; margin:0 6px 0 0; padding:24px 24px 10px}
+#v-karte .bigcard .cat{font-size:clamp(1.5rem,9vmin,3.6rem); padding:6px 0}
+#v-karte .bigcard .hint{margin-bottom:6px}
+#v-karte .bigcard .cat.small{font-size:clamp(1.2rem,6.5vmin,2.4rem)}
+.kfoot{display:flex; justify-content:space-between; align-items:center; gap:10px; padding-right:6px}
+.kfoot .btn{font-size:1.05rem}
+.krules{position:absolute; inset:8px; z-index:5; background:#fff; border:3px solid var(--ink); border-radius:18px; padding:14px 20px; overflow:auto; box-shadow:4px 4px 0 var(--ink)}
+.krules[hidden]{display:none}
+.krules ol{padding-left:1.2em; margin:8px 0}
+.krules li{margin:4px 0; line-height:1.4}
+
+.rothint{position:fixed; inset:0; z-index:80; background:rgba(28,26,23,.92); color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; font-size:1.3rem; text-align:center}
+.rothint[hidden]{display:none}
+.rothint .ph{transform-origin:40px 36px; animation:rot 1.6s ease-in-out infinite}
+@keyframes rot{0%,20%{transform:rotate(0)} 60%,100%{transform:rotate(-90deg)}}
+/* ---------- 3-pro-Seite-Zettel ---------- */
+.sheet.s3{--cw:min(calc((100vw - 64px)/4.7),66px); --ch:calc(var(--cw)*.5); --u:var(--ch); --bw:calc(var(--cw)*.3); --bh:calc(var(--ch)*.46);
+  font-size:calc(var(--cw)*.085); display:flex; gap:calc(var(--cw)*.15); align-items:stretch; padding:calc(var(--cw)*.12)}
+.s3-l{flex:none}
+.s3-r{flex:1; display:flex; flex-direction:column; justify-content:space-between; min-width:calc(var(--cw)*.8)}
+.s3 .sh-title{font-size:calc(var(--cw)*.15); text-align:center; display:block; padding:.1em .25em .14em; border-radius:.5em .5em .5em 3px}
+.s3 .sh-title small{display:block; margin:.05em 0 0; font-size:.55em}
+.s3-r .sh-name{flex:none; min-width:0; margin-top:.8em; font-size:.9em}
+.s3-r .line{flex:1; border-bottom:1.5px solid #000; height:1.3em}
+.s3-tot .r{display:flex; align-items:center; gap:.3em; margin-top:.4em; font-weight:800; font-size:.92em}
+.s3-tot .r svg{width:2.3em; height:1.8em; flex:none}
+.s3-tot .r span{flex:1; white-space:nowrap}
+.s3-tot .r i{display:block; width:2.3em; height:1.8em; border:1.5px solid #000; border-radius:4px; flex:none}
+.s3-tot .g{justify-content:space-between; font-size:1em; margin-top:.6em}
+.s3-tot .g i{width:3em; height:2em; border-width:2px}
 
 /* ---------- Druck ---------- */
 #print-area{display:none}
@@ -213,16 +265,9 @@ table.pt{border-collapse:collapse; width:100%; min-width:360px}
   .ppage{page-break-after:always; break-after:page}
   .ppage:last-child{page-break-after:auto; break-after:auto}
   .ppage .sheet{box-shadow:none; border-radius:10px; margin:0 auto}
-  .ppage.one .sheet{--u:36mm; font-size:calc(var(--u)*.12); border-width:1.5px}
-  .ppage.two .sheet{--u:25mm; font-size:calc(var(--u)*.13); border-width:1.5px}
-  .ppage.two .sheet + .cut{margin:5mm 0; border-top:1px dashed #000; text-align:center; height:0; line-height:0; font-size:8pt}
-  .ppage.two .sheet + .cut::after{content:"✂"; background:#fff; padding:0 8px; position:relative; top:-1px}
-  .pcards{display:grid; grid-template-columns:repeat(3,1fr); grid-auto-rows:33mm}
-  .pcard{border:1px dashed #000; padding:1.8mm; display:flex}
-  .pcard .in{flex:1; border:1.5px solid #000; border-radius:3mm; display:flex; flex-direction:column; justify-content:space-between; text-align:center; padding:1.4mm 2mm; color:#000}
-  .pcard .th{font-size:6.5pt; text-transform:uppercase; letter-spacing:.12em; font-weight:800}
-  .pcard .ct{font-size:11.5pt; font-weight:900; line-height:1.15}
-  .pcard .nr{font-size:6.5pt; font-weight:700; text-align:right}
+  .ppage.three .sheet.s3{--cw:41.5mm; --ch:21mm; width:100%; font-size:calc(var(--cw)*.085); border-width:1.5px; border-radius:3mm; margin:0 auto}
+  .ppage.three .sheet + .cut{margin:5.5mm 0; border-top:1px dashed #000; text-align:center; height:0; line-height:0; font-size:8pt}
+  .ppage.three .sheet + .cut::after{content:"✂"; background:#fff; padding:0 8px; position:relative; top:-1px}
   .prules{color:#000; font-family:var(--font); font-size:11pt; max-width:170mm; margin:0 auto}
   .prules h1{font-size:26pt; margin:0 0 4mm}
   .prules h3{font-size:12.5pt; margin:5mm 0 1.5mm}
@@ -232,65 +277,71 @@ table.pt{border-collapse:collapse; width:100%; min-width:360px}
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <div class="logo" id="logo">Hab ich</div>
-    <div class="logo-sub">…auch!<small>Das Gleich-gedacht-Spiel für Zettel &amp; Stift</small></div>
-  </header>
 
-  <!-- ===== Karten ===== -->
-  <section class="view active" id="v-karten">
-    <h2>Kategorienkarten</h2>
-    <p class="lead">Zieh eine Karte, lies sie laut vor, und alle schreiben los.</p>
-    <div class="chips" id="chips"></div>
-    <div class="bigcard" id="bigcard">
-      <div class="theme" id="c-theme"></div>
-      <div class="cat" id="c-cat"></div>
-      <div class="hint">Schreibt 3 Begriffe auf</div>
-      <div class="meta"><span id="c-nr"></span><span id="c-pos"></span></div>
+  <!-- ===== Start ===== -->
+  <section class="view active" id="v-start">
+    <div class="hero">
+      <div class="logo" id="logo">Hab ich</div>
+      <div class="sub">…auch!<small>Das Gleich-gedacht-Spiel</small></div>
     </div>
-    <div class="row">
-      <button class="btn alt" id="b-prev" aria-label="Vorherige Karte">← Zurück</button>
-      <button class="btn red" id="b-next">Nächste Karte →</button>
+    <div class="bigbtns">
+      <button class="bigbtn a" data-go="tisch"><b>Am Tisch</b><span>Mit Zettel &amp; Stift spielen</span></button>
+      <button class="bigbtn b" data-go="lobby"><b>Digital</b><span>Jede Person mit dem eigenen Handy</span></button>
     </div>
-    <div class="set">
-      <div class="row" style="justify-content:space-between">
-        <b>Karten für ein ganzes Spiel<br><small style="font-weight:600">3 Runden mit je 3 Karten</small></b>
-        <button class="btn small" id="b-set">9 Karten ziehen</button>
-      </div>
-      <ul id="setlist" hidden></ul>
-      <div class="row" id="setactions" style="margin-top:12px" hidden>
-        <button class="btn small alt" id="b-setprint">Diese 9 drucken</button>
-      </div>
-    </div>
-    <div class="set">
-      <b>Kartenbogen zum Ausschneiden</b>
-      <p style="margin:6px 0 10px">Schwarz-weiß, 24 Karten pro Seite – passend zum gewählten Thema oben (<span id="pcount"></span> Karten).</p>
-      <button class="btn small alt" id="b-printcards">Kartenbogen drucken</button>
+    <button class="btn alt" data-go="regeln" style="width:100%">📖 Spielregeln</button>
+    <div class="foot">3–8 Personen · 3 Runden · ca. 30 Minuten</div>
+  </section>
+
+  <!-- ===== Am Tisch ===== -->
+  <section class="view" id="v-tisch">
+    <div class="topbar"><button class="btn small alt" data-back>‹ Zurück</button></div>
+    <h2>Am Tisch spielen</h2>
+    <p class="lead">Ihr spielt mit Zettel und Stift. Dieses Handy zeigt nur die Fragen.</p>
+    <h3 class="sec">Schwierigkeit</h3>
+    <div class="chips" id="lv-tisch"></div>
+    <p class="lvnote" id="lvn-tisch"></p>
+    <div class="bigbtns">
+      <button class="bigbtn a" id="b-start"><b>Spiel starten</b><span>Fragen im Querformat anzeigen</span></button>
+      <button class="bigbtn" data-go="plan"><b>Zettel drucken</b><span>Schwarz-weiß, 3 pro Seite</span></button>
     </div>
   </section>
 
-  <!-- ===== Spielplan ===== -->
+  <!-- ===== Lobby ===== -->
+  <section class="view" id="v-lobby">
+    <div class="topbar"><button class="btn small alt" data-back>‹ Zurück</button></div>
+    <h2>Digital spielen</h2>
+    <p class="lead">Jede Person hat ihren eigenen digitalen Zettel, die Frage erscheint bei allen.</p>
+    <h3 class="sec">Schwierigkeit</h3>
+    <div class="chips" id="lv-lobby"></div>
+    <p class="lvnote" id="lvn-lobby"></p>
+    <div class="bigbtns">
+      <button class="bigbtn b" disabled><b>Neuer Raum</b><span>Kommt bald</span></button>
+      <button class="bigbtn" disabled><b>Beitreten</b><span>Kommt bald</span></button>
+    </div>
+    <button class="btn small alt" data-go="zettel">Digitalen Zettel ausprobieren (Test)</button>
+    <details class="lrules"><summary>📖 Spielregeln lesen</summary><div class="rules" id="rules-lobby"></div></details>
+  </section>
+
+  <!-- ===== Spielplan drucken ===== -->
   <section class="view" id="v-plan">
-    <h2>Spielplan zum Ausdrucken</h2>
+    <div class="topbar"><button class="btn small alt" data-back>‹ Zurück</button></div>
+    <h2>Zettel drucken</h2>
     <p class="lead">Komplett schwarz-weiß, ohne Flächen – spart Tinte. Ein Zettel gilt für eine Runde, für ein ganzes Spiel braucht jede Person also 3 Zettel.</p>
     <div class="row" style="margin-bottom:12px">
       <label class="n">Personen <input type="number" class="s" id="nplayers" min="1" max="12" value="4"></label>
       <label class="n">Runden <select id="nrounds"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option></select></label>
     </div>
     <div class="row">
-      <div class="seg" id="seg">
-        <button data-n="2" class="on">2 Zettel pro Seite</button>
-        <button data-n="1">1 Zettel pro Seite</button>
-      </div>
       <button class="btn red" id="b-printplan">Drucken</button>
     </div>
     <p style="font-weight:800; margin:12px 0 0" id="plansum"></p>
     <div class="preview"><div id="planprev"></div></div>
-    <p class="lead">Bei „2 Zettel pro Seite“ einfach an der Schnittlinie durchschneiden.</p>
+    <p class="lead">3 Zettel pro Seite, einfach an den Schnittlinien durchschneiden.</p>
   </section>
 
   <!-- ===== Digitaler Zettel ===== -->
   <section class="view" id="v-zettel">
+    <div class="topbar"><button class="btn small alt" data-back>‹ Zurück</button></div>
     <h2>Digitaler Zettel</h2>
     <p class="lead"><b>Schreiben:</b> Feld antippen, mit dem Finger schreiben, „Fertig“. <b>Vergleichen:</b> Begriff antippen = umkreist, nochmal = durchgestrichen, nochmal = wieder frei. Stern antippen = ausmalen (nur bei umkreisten Begriffen). Zum Schluss „Auswerten“.</p>
     <div class="turnhint">Tipp: Für mehr Platz zum Schreiben das Handy quer halten.</div>
@@ -328,36 +379,47 @@ table.pt{border-collapse:collapse; width:100%; min-width:360px}
     </div>
   </div>
 
-  <!-- ===== Punkte ===== -->
-  <section class="view" id="v-punkte">
-    <h2>Punktezähler</h2>
-    <p class="lead">Trage nach jeder der 3 Runden die Punkte aller Mitspieler ein.</p>
-    <div class="row" style="margin-bottom:12px">
-      <input type="text" id="pname" placeholder="Neuer Spieler" maxlength="20" style="flex:1; min-width:140px">
-      <button class="btn small" id="b-padd">+ Spieler</button>
-      <button class="btn small alt" id="b-pround">+ Runde</button>
-    </div>
-    <div class="tablewrap"><table class="pt" id="ptable"></table></div>
-    <div class="row" style="margin-top:14px"><button class="btn small alt" id="b-preset">Alles zurücksetzen</button></div>
-  </section>
-
   <!-- ===== Regeln ===== -->
   <section class="view" id="v-regeln">
+    <div class="topbar"><button class="btn small alt" data-back>‹ Zurück</button><button class="btn small alt" id="b-printrules">Regeln drucken</button></div>
     <h2>Spielregeln</h2>
-    <div class="row" style="margin-bottom:12px"><button class="btn small alt" id="b-printrules">Regeln drucken</button></div>
     <div class="rules" id="rules"></div>
   </section>
-
-  <div class="foot">Spiel mit Zettel &amp; Stift · 3–8 Personen · 3 Runden · ca. 30 Minuten</div>
 </div>
 
-<nav class="tabs" aria-label="Bereiche">
-  <button class="tab active" data-v="karten"><span class="i">🃏</span>Karten</button>
-  <button class="tab" data-v="plan"><span class="i">🖨️</span>Spielplan</button>
-  <button class="tab" data-v="zettel"><span class="i">✏️</span>Zettel</button>
-  <button class="tab" data-v="punkte"><span class="i">🔢</span>Punkte</button>
-  <button class="tab" data-v="regeln"><span class="i">📖</span>Regeln</button>
-</nav>
+<!-- ===== Kartenansicht (Tischspiel) ===== -->
+<section class="view" id="v-karte">
+  <div class="kbar">
+    <button class="btn small alt" id="k-exit">‹ Beenden</button>
+    <div class="mid" id="k-mid"></div>
+    <button class="btn small alt" id="k-rules">Kurzregeln</button>
+  </div>
+  <div class="bigcard" id="bigcard">
+    <div class="theme" id="c-theme"></div>
+    <div class="cat" id="c-cat"></div>
+    <div class="hint" id="c-hint">Schreibt 3 Begriffe auf</div>
+    <div class="meta"><span id="c-nr"></span><span id="c-pos"></span></div>
+  </div>
+  <div class="kfoot">
+    <button class="btn alt" id="k-prev">← Zurück</button>
+    <button class="btn red" id="k-next">Nächste Karte →</button>
+  </div>
+  <div class="krules" id="krules" hidden>
+    <div class="row" style="justify-content:space-between"><b style="font-size:1.2rem">Kurzregeln</b><button class="btn small alt" id="k-rules-x">✕ Schließen</button></div>
+    <ol>
+      <li>Frage vorlesen, alle schreiben <b>heimlich 3 Begriffe</b> in freie Felder. Kein Begriff doppelt. Das macht ihr für 3 Fragen.</li>
+      <li>Dann liest reihum jemand einen Begriff vor. Alle anderen sagen nur „habe ich“ oder „nicht“.</li>
+      <li><b>Treffer:</b> umkreisen = 1 Punkt. <b>Niemand:</b> durchstreichen. <b>Genau ein anderer:</b> Stern ausmalen = +2.</li>
+      <li><b>Reihen</b> (von oben) 1 / 2 / 3 Punkte, <b>Spalten</b> (von links) 1 / 2 / 3 Punkte, wenn alle drei umkreist sind.</li>
+      <li>Die Runde endet, sobald jemand keinen Begriff mehr vorlesen kann. 3 Runden sind ein Spiel.</li>
+    </ol>
+  </div>
+</section>
+
+<div class="rothint" id="rothint" hidden>
+  <svg viewBox="0 0 80 80" width="120" height="120" aria-hidden="true"><g class="ph" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"><rect x="26" y="10" width="28" height="52" rx="5"/><line x1="36" y1="55" x2="44" y2="55"/></g><path d="M14 66 A30 30 0 0 0 66 66" fill="none" stroke="#f4b63c" stroke-width="4" stroke-linecap="round" opacity="0"/></svg>
+  <b>Bitte Handy quer halten</b>
+</div>
 
 <div id="print-area"></div>
 
@@ -365,84 +427,16 @@ table.pt{border-collapse:collapse; width:100%; min-width:360px}
 "use strict";
 const GAME = "Hab ich";
 
-const THEMES = [
-  {id:"alltag",  name:"Alltag",            color:"#e4513a"},
-  {id:"essen",   name:"Essen & Trinken",   color:"#f4b63c"},
-  {id:"reisen",  name:"Urlaub & Reisen",   color:"#2b8fbf"},
-  {id:"natur",   name:"Natur & Tiere",     color:"#4c9a47"},
-  {id:"freizeit",name:"Freizeit & Feiern", color:"#9a5bc4"},
-  {id:"mensch",  name:"Menschen & Gefühle",color:"#d9568f"},
-  {id:"formen",  name:"Formen & Farben",   color:"#1d7a6c"}
+const LEVELS = [
+  {id:"k", name:"Kinder", color:"#f4b63c"},
+  {id:"l", name:"Leicht", color:"#4c9a47"},
+  {id:"m", name:"Mittel", color:"#2b8fbf"},
+  {id:"s", name:"Schwer", color:"#e4513a"}
 ];
-
-const RAW = {
-alltag:[
- "Dinge, die man im Badezimmer findet","Etwas, das man jeden Morgen tut","Dinge, die in einer Schublade landen",
- "Gründe, zu spät zu kommen","Dinge auf einem Schreibtisch","Hausarbeiten, die niemand mag",
- "Dinge, die plötzlich leer sind","Was man in der Jackentasche findet","Dinge, die man gerne teilt",
- "Dinge, die man ständig verlegt","Dinge, die einen Akku haben","Was man im Keller aufbewahrt",
- "Dinge auf einem Nachttisch","Geräusche in einer ruhigen Nacht","Was auf einem Einkaufszettel steht",
- "Dinge, die klingeln","Dinge, die man abends ausschaltet","Dinge mit Reißverschluss",
- "Was man nach einem Umzug zuerst auspackt","Dinge, die im Auto liegen bleiben"
-],
-essen:[
- "Dinge, die man auf eine Pizza legt","Zutaten fürs Frühstück","Was man grillt",
- "Was man zum Kaffee dazu nimmt","Gemüse, das Kinder nicht mögen","Eissorten",
- "Dinge, die scharf sind","Was man aufs Brot legt","Zutaten für einen Salat",
- "Snacks für den Filmabend","Gewürze in der Küche","Was man zum Backen braucht",
- "Getränke auf einer Party","Was man isst, wenn man sich schlapp fühlt","Obst, das man schälen muss",
- "Gerichte mit Soße","Was in einer Suppe schwimmt","Was zu Weihnachten auf den Tisch kommt",
- "Dinge, die sauer schmecken","Was man an einem Imbiss bestellt"
-],
-reisen:[
- "Was man in den Koffer packt","Dinge, die man am Strand sieht","Souvenirs",
- "Was man im Flugzeug tut","Berühmte Bauwerke","Länder, die man gerne bereisen würde",
- "Was im Urlaub schiefgehen kann","Dinge im Hotelzimmer","Was man fürs Zelten braucht",
- "Fortbewegungsmittel","Was man beim Skifahren trägt","Orte, an denen man Schlange steht",
- "Dinge, die man am Bahnhof sieht","Großstädte in Europa","Was man zum Wandern einpackt",
- "Sprachen der Welt","Dinge, die man beim Campen tut","Inseln",
- "Was im Handgepäck verboten ist","Aktivitäten an einem See"
-],
-natur:[
- "Tiere im Zoo","Tiere auf dem Bauernhof","Was im Wald wächst",
- "Blumen","Insekten","Tiere, die fliegen können",
- "Tiere im Meer","Was man am Himmel sieht","Haustiere",
- "Wetterphänomene","Was im Herbst passiert","Tiere mit Winterschlaf",
- "Was man im Garten findet","Bäume","Tiere, vor denen man sich fürchtet",
- "Dinge, die grün sind","Dinge, die glitzern","Was man im Schnee tut",
- "Namen für Hunde","Flüsse"
-],
-freizeit:[
- "Sportarten mit Ball","Musikinstrumente","Was man auf einem Festival braucht",
- "Gesellschaftsspiele","Hobbys","Was man im Kino tut",
- "Dinge im Freizeitpark","Kreative Berufe","Was man bei einer Geburtstagsfeier macht",
- "Dinge, die man sammelt","Was man an Silvester macht","Was man in einer Bibliothek findet",
- "Dinge im Schwimmbad","Was man im Fitnessstudio sieht","Dinge auf dem Rummel",
- "Spielzeug aus der Kindheit","Dinge auf einer Hochzeit","Was man selber basteln kann",
- "Was man beim Spielen ruft","Dinge, die man bei einem Picknick dabei hat"
-],
-mensch:[
- "Dinge, die einen nervös machen","Dinge, die einen zum Lachen bringen","Gründe, sich zu freuen",
- "Was man als Kind geglaubt hat","Peinliche Momente","Was man gerne geschenkt bekommt",
- "Was man bei Regen tut","Berufswünsche aus der Kindheit","Dinge, die müde machen",
- "Etwas, auf das man sich freut","Dinge, die man heimlich tut","Eigenschaften eines guten Freundes",
- "Dinge, die man ungern zugibt","Sätze, die Eltern oft sagen","Was man vor einem Date tut",
- "Was man im Büro oft hört","Was man vor einer Prüfung tut","Dinge, die ansteckend sind",
- "Was man bei Hitze tut","Dinge, die man lieber allein tut"
-],
-formen:[
- "Dinge, die rund sind","Dinge, die rot sind","Dinge, die man werfen kann",
- "Dinge, die laut sind","Dinge, die klebrig sind","Dinge, die sich drehen",
- "Dinge, die man falten kann","Dinge, die sehr klein sind","Dinge, die gelb sind",
- "Dinge, die kalt sind","Dinge, die man aufblasen kann","Dinge, die tropfen",
- "Dinge, die man stapeln kann","Dinge aus Holz","Dinge aus Glas",
- "Dinge, die summen","Dinge, die man aufrollen kann","Dinge, die blau sind",
- "Dinge, die man aufhängt","Dinge, die weich sind"
-]};
-
+const Q = {"k":["Eissorten","Tiere im Zoo","Tiere auf dem Bauernhof","Insekten","Tiere, die fliegen können","Tiere im Meer","Haustiere","Blumen","Spielzeug aus der Kindheit","Was man beim Spielen ruft","Dinge, die rot sind","Dinge, die gelb sind","Dinge, die blau sind","Dinge, die grün sind","Dinge, die weich sind","Dinge, die kalt sind","Dinge, die rund sind","Dinge, die man auf eine Pizza legt","Gemüse, das Kinder nicht mögen","Was man im Schnee tut","Dinge, die man bei einem Picknick dabei hat","Was man bei Regen tut","Dinge, die man am Strand sieht","Dinge, die man aufblasen kann","Dinge, die sich drehen","Dinge auf einem Spielplatz","Was man in der Schultasche hat","Tiere mit vier Beinen","Tiere, die schwimmen können","Obstsorten, die süß schmecken","Dinge, die man malen kann","Kuscheltiere","Was man im Sandkasten macht","Süßigkeiten","Dinge im Kinderzimmer","Tiere, die Eier legen","Was man zum Kindergeburtstag isst","Dinge, die man im Winter anzieht","Tiere im Wald","Dinge, die Flügel haben","Dinge, die man pusten kann","Was man auf dem Bauernhof hört","Was man im Zirkus sieht","Dinge, die man auf einer Wiese findet","Was man aus Knete formen kann","Verkleidungen an Fasching","Dinge, die man schaukeln kann","Tiere, die man streicheln kann","Tiere mit Fell","Dinge, die Räder haben","Gemüsesorten","Dinge, die man mit Wasser machen kann","Dinge, die man zum Malen braucht","Was Kinder zum Frühstück essen","Dinge, die man im Bett macht","Was man im Kindergarten bastelt","Wörter für Tierlaute","Dinge, die man im Sommer im Garten macht","Was man mit Seifenblasen macht","Dinge, die man backen kann","Dinge, die im Schwimmbecken schwimmen","Was man im Märchen findet","Dinge, die man hüpfen kann","Was man auf dem Weg zur Schule sieht","Dinge, die fahren","Tiere, die man im Streichelzoo sieht","Was man zum Zähneputzen braucht","Dinge, die man einpackt, wenn es ins Freibad geht","Lieblingsspiele auf dem Schulhof","Was ein Schneemann braucht","Dinge, die man mit einem Ball machen kann","Was Tiere zum Fressen bekommen","Dinge, die man im Herbst sammeln kann","Dinge, die einen Schwanz haben","Dinge, die man trommeln kann","Was man beim Fangenspielen ruft","Dinge, die man kuscheln kann","Dinge, die man im Schlafzimmer findet","Sachen, die man in der Badewanne mitnimmt","Dinge, die man klettern kann"],"l":["Dinge, die man im Badezimmer findet","Etwas, das man jeden Morgen tut","Dinge, die in einer Schublade landen","Dinge auf einem Schreibtisch","Dinge, die plötzlich leer sind","Was man in der Jackentasche findet","Dinge, die man gerne teilt","Dinge, die einen Akku haben","Dinge auf einem Nachttisch","Geräusche in einer ruhigen Nacht","Was auf einem Einkaufszettel steht","Dinge, die klingeln","Dinge, die man abends ausschaltet","Dinge mit Reißverschluss","Zutaten fürs Frühstück","Was man grillt","Was man zum Kaffee dazu nimmt","Was man aufs Brot legt","Zutaten für einen Salat","Snacks für den Filmabend","Was man zum Backen braucht","Getränke auf einer Party","Obst, das man schälen muss","Was zu Weihnachten auf den Tisch kommt","Was man an einem Imbiss bestellt","Was man in den Koffer packt","Souvenirs","Länder, die man gerne bereisen würde","Was man fürs Zelten braucht","Fortbewegungsmittel","Was man beim Skifahren trägt","Dinge, die man beim Campen tut","Was im Wald wächst","Was im Herbst passiert","Was man im Garten findet","Dinge, die glitzern","Namen für Hunde","Sportarten mit Ball","Was man im Kino tut","Was man bei einer Geburtstagsfeier macht","Dinge, die man sammelt","Was man an Silvester macht","Dinge auf dem Rummel","Dinge auf einer Hochzeit","Was man selber basteln kann","Dinge, die einen zum Lachen bringen","Gründe, sich zu freuen","Was man gerne geschenkt bekommt","Dinge, die müde machen","Etwas, auf das man sich freut","Dinge, die man heimlich tut","Was man vor einem Date tut","Was man im Büro oft hört","Was man vor einer Prüfung tut","Dinge, die ansteckend sind","Was man bei Hitze tut","Dinge, die man lieber allein tut","Dinge, die man werfen kann","Dinge, die laut sind","Dinge, die klebrig sind","Dinge, die man falten kann","Dinge, die tropfen","Dinge, die man stapeln kann","Dinge aus Holz","Dinge aus Glas","Dinge, die summen","Dinge, die man aufrollen kann","Dinge, die man aufhängt","Dinge in der Küche","Dinge im Wohnzimmer","Dinge im Kühlschrank","Obstsorten","Fleischgerichte","Nudelsorten","Käsesorten","Kuchensorten","Fast-Food-Gerichte","Kartoffelgerichte","Getränke, die man heiß trinkt","Kleidungsstücke","Schuhe","Dinge, die man im Sommer trägt","Schulfächer","Dinge im Klassenzimmer","Berufe","Sportarten","Wintersportarten","Wassersportarten","Städte in Deutschland","Länder in Europa","Farben","Möbelstücke","Werkzeuge","Dinge in der Garage","Dinge, die man im Auto braucht","Dinge, die man am Handy macht","Feiertage","Was man zu Ostern macht","Was man an Halloween sieht","Dinge, die man für eine Party braucht","Filmgenres","Musikrichtungen","Dinge, die man am Wochenende tut","Dinge, die man bei Regen mitnimmt","Dinge, die man im Sommer isst","Dinge, die man im Winter braucht","Dinge, die man in der Mittagspause tut","Dinge auf einem Balkon","Dinge im Büro","Was man zum Geburtstag schenkt","Was man im Restaurant bestellt","Dinge in der Stadt","Dinge im Park","Was man vor dem Schlafengehen tut","Dinge, die man zum Waschen braucht","Dinge, die man zum Schreiben nutzt","Was man in einer Pfanne brät","Was man im Ofen macht","Dinge aus Papier","Dinge aus Metall","Dinge aus Plastik","Dinge aus Stoff","Was in einem Rucksack steckt","Was man auf einem Markt kauft","Dinge, die man beim Arzt sieht","Dinge, die man verschenkt","Was man in der Apotheke kauft","Tiere in Afrika","Tiere in Deutschland","Was man im Garten pflanzt","Gerichte aus Italien","Gerichte aus Deutschland","Was man in einem Café bestellt","Was man zum Frühstück trinkt","Dinge, die man aufräumt","Dinge, die man putzt","Dinge, die man aufschließt","Dinge, die man ausschaltet, bevor man geht","Dinge, die man einsteckt","Dinge auf einer Landkarte","Dinge, die man beim Spazierengehen sieht","Dinge, die einen Stecker haben","Dinge mit Knöpfen","Dinge, die man zum Lesen nutzt","Orte, an denen man sich verabredet","Dinge, die man beim Frühstück sieht","Was man im Frühling erlebt","Was man im Sommer erlebt","Was man im Winter erlebt","Was man im Zug macht","Dinge auf dem Land","Dinge auf dem Dachboden","Dinge im Kleiderschrank","Dinge, die an der Wand hängen","Dinge im Bücherregal","Dinge auf dem Herd","Was man am Strand mitnimmt","Was man bei einer Wanderung erlebt","Was man auf dem Fußballplatz sieht","Was man am Flughafen sieht","Was man im Supermarkt wiegt","Was man im Freibad tut","Was man in der Sauna tut","Was man im Wald tut","Was man auf einem Konzert tut","Was man im Aufzug tut","Was man in der Warteschlange tut","Dinge, die man an der Kasse kauft","Sachen, die man auf dem Flohmarkt findet","Was man im Baumarkt kauft","Dinge, die man im Waschsalon sieht","Dinge in einem Werkzeugkasten","Dinge in einer Handtasche","Dinge im Federmäppchen","Dinge in einem Erste-Hilfe-Kasten","Was man in ein Brot einpackt","Dinge, die man zum Camping mitnimmt","Dinge auf einem Weihnachtsmarkt","Dinge am Weihnachtsbaum","Geschenke zu Weihnachten","Dinge, die man im Herbst isst","Pflanzen im Zimmer","Gemüse aus dem Garten","Dinge, die man im Schaufenster sieht","Dinge, die man an einer Bushaltestelle sieht","Dinge, die man im Supermarkt probiert","Dinge, die man in einer Bäckerei kauft","Dinge, die man in einer Metzgerei kauft","Dinge, die man in einem Blumenladen kauft","Dinge, die man in einer Bank erledigt","Dinge, die man bei der Post erledigt","Dinge, die man im Fotoalbum findet","Was man in einer Garderobe findet","Was man im Eiscafé bestellt","Was man im Kino isst","Was auf einer Speisekarte steht","Dinge, die man im Waschbecken tut","Dinge, die man in der Pause isst","Spiele für draußen","Mitbringsel für eine Einladung"],"m":["Gründe, zu spät zu kommen","Hausarbeiten, die niemand mag","Dinge, die man ständig verlegt","Was man im Keller aufbewahrt","Was man nach einem Umzug zuerst auspackt","Dinge, die im Auto liegen bleiben","Dinge, die scharf sind","Was man isst, wenn man sich schlapp fühlt","Gerichte mit Soße","Was in einer Suppe schwimmt","Dinge, die sauer schmecken","Was man im Flugzeug tut","Was im Urlaub schiefgehen kann","Dinge im Hotelzimmer","Orte, an denen man Schlange steht","Dinge, die man am Bahnhof sieht","Was man zum Wandern einpackt","Aktivitäten an einem See","Was man am Himmel sieht","Tiere mit Winterschlaf","Tiere, vor denen man sich fürchtet","Was man auf einem Festival braucht","Gesellschaftsspiele","Hobbys","Dinge im Freizeitpark","Was man in einer Bibliothek findet","Dinge im Schwimmbad","Was man im Fitnessstudio sieht","Dinge, die einen nervös machen","Was man als Kind geglaubt hat","Peinliche Momente","Berufswünsche aus der Kindheit","Eigenschaften eines guten Freundes","Dinge, die man ungern zugibt","Sätze, die Eltern oft sagen","Ausreden, wenn man etwas vergessen hat","Dinge, die man nie wieder findet","Dinge, die man im Urlaub vergisst","Dinge, die man aus dem Haus mitnimmt, ohne nachzudenken","Dinge, die nach dem Waschen fehlen","Dinge, die man im Internet sucht","Dinge, die man ungern verleiht","Was man beim Aufräumen findet","Dinge, die man nur einmal im Jahr tut","Dinge, die man bei einem Vorstellungsgespräch sagt","Berufe, die früh anfangen","Berufe mit Uniform","Berufe, die man am Wochenende braucht","Dinge, die man im Krankenhaus sieht","Dinge, die man auf einer Baustelle sieht","Dinge, die man in einer Werkstatt findet","Was man zum Streichen einer Wand braucht","Was man bei einem Umzug vergisst","Was man in einer Notfalltasche haben sollte","Was man bei Stromausfall tut","Was man macht, wenn man nicht einschlafen kann","Was man macht, wenn man Langeweile hat","Was man macht, wenn man sich verirrt hat","Was man macht, wenn man Stress hat","Was man macht, wenn der Akku leer ist","Was man macht, wenn man auf jemanden wartet","Dinge, die man bei Fieber braucht","Dinge, die einen aufwecken","Dinge, die einen beruhigen","Dinge, die einen ärgern","Dinge, die man im Stau macht","Dinge, die man im Wartezimmer macht","Typische Geräusche in einer Großstadt","Typische Gerüche im Sommer","Typische Gerüche in der Küche","Dinge, die nach Urlaub schmecken","Dinge, die nach Kindheit riechen","Dinge, die man an Weihnachten schmückt","Dinge, die man bei einer Beerdigung sieht","Dinge, die man bei einer Taufe sieht","Dinge, die man auf einer Reise fotografiert","Dinge, die man im Museum sieht","Dinge, die man im Theater sieht","Berühmte Maler und Künstler","Berühmte Sänger und Bands","Berühmte Schauspieler","Berühmte Erfinder","Berühmte Sportler","Städte in Italien","Städte in Frankreich","Städte in Spanien","Städte in den USA","Hauptstädte in Europa","Berge der Welt","Seen in Deutschland","Länder in Asien","Länder in Südamerika","Nationalgerichte","Sehenswürdigkeiten in Paris","Sehenswürdigkeiten in London","Sehenswürdigkeiten in Rom","Dinge, die man mit Wasser betreibt","Dinge, die man mit Strom betreibt","Dinge, die man mit Muskelkraft antreibt","Dinge, die man aufziehen muss","Dinge, die man polieren kann","Dinge, die man schrauben kann","Dinge, die man zusammenkleben kann","Dinge, die man verlieren kann","Dinge, die man gewinnen kann","Dinge, die man verpassen kann","Dinge, die man verraten kann","Dinge, die man vermissen kann","Dinge, die man reparieren kann","Dinge, die man leihen kann","Dinge, die man mieten kann","Dinge, die man bestellen kann","Dinge, die man zurückschicken kann","Dinge, die man spenden kann","Dinge, die man schlagen kann","Dinge, die man brechen kann","Dinge, die man knacken kann","Dinge, die man schütteln kann","Dinge, die man schneiden kann","Dinge, die man streichen kann","Dinge, die man mischen kann","Dinge, die man auftauen kann","Dinge, die man einfrieren kann","Dinge, die man einlegen kann","Dinge, die man trocknen kann","Dinge, die man würzen kann","Dinge, die man dekorieren kann","Dinge, die man nähen kann","Dinge, die man stricken kann","Dinge, die man flechten kann","Dinge, die man buchen kann","Ausreden, um eine Einladung abzusagen","Dinge, die man im Regen vermisst","Was man bei einer Autopanne tut","Dinge, die man auf einem Campingplatz hört","Was man bei einem Vorstellungsgespräch mitbringt","Dinge, die man heimlich isst","Was man beim Warten auf den Bus tut","Dinge, die einen an früher erinnern","Was man bei einem Wintereinbruch braucht"],"s":["Berühmte Bauwerke","Sprachen der Welt","Inseln","Flüsse","Großstädte in Europa","Bäume","Kreative Berufe","Gewürze in der Küche","Was im Handgepäck verboten ist","Wetterphänomene","Musikinstrumente","Dinge, die sehr klein sind","Dinge, die man auf einem Segelschiff findet","Dinge, die man im Orchester sieht","Dinge, die einen Rhythmus haben","Dinge mit einer Hauptstadt","Fachbegriffe aus der Küche","Fachbegriffe aus der Musik","Fachbegriffe aus dem Sport","Fachbegriffe aus der Medizin","Dinge, die man im Labor findet","Dinge, die man in der Sternenkunde sieht","Planeten und Himmelskörper","Dinge, die man auf dem Meeresgrund findet","Dinge, die in einer Höhle leben","Dinge, die in der Wüste wachsen","Tiere in Australien","Tiere in der Arktis","Tiere im Regenwald","Vögel","Fischsorten","Käse aus Frankreich","Weinsorten und Rebsorten","Kräuter","Pilzsorten","Nüsse","Getreidesorten","Brotsorten","Wurstsorten","Gebäck aus aller Welt","Cocktails","Biersorten","Teesorten","Süßspeisen aus aller Welt","Berühmte Straßen und Plätze","Berühmte Brücken","Berühmte Museen","Berühmte Opernhäuser","Weltwunder und Naturwunder","Gebirge der Welt","Wüsten der Welt","Städte in Asien","Städte in Südamerika","Hauptstädte in Afrika","Währungen der Welt","Dinge, die man in einem Atlas findet","Dinge, die man in einem Lexikon nachschlägt","Gedichte und Märchen","Märchenfiguren","Sagenhafte Wesen","Götter und Göttinnen aus Mythen","Dinge, die man im Mittelalter hatte","Dinge, die man auf einer Burg findet","Dinge, die man in einer Kirche sieht","Dinge, die in einer Moschee zu sehen sind","Dinge, die man zu einer Hochzeit in einer anderen Kultur macht","Bräuche zu Neujahr in anderen Ländern","Traditionelle Kleidung aus aller Welt","Instrumente in einer Bigband","Tanzstile","Malstile und Kunstrichtungen","Stoffe und Materialien","Edelsteine und Metalle","Maßeinheiten","Dinge, die man misst","Geometrische Formen","Dinge, die man berechnet","Dinge, die man im Garten pflegt","Zimmerpflanzen","Dinge, die man im Gewächshaus anbaut"]};
 const ALL = [];
-THEMES.forEach(th => RAW[th.id].forEach(t => ALL.push({id:ALL.length, t, theme:th.id})));
-const themeOf = id => THEMES.find(x => x.id === id);
+LEVELS.forEach(lv => Q[lv.id].forEach(t => ALL.push({id:ALL.length, t, lv:lv.id})));
+const lvOf = id => LEVELS.find(x => x.id === id);
 
 /* ---------- Helfer ---------- */
 const $  = (s, r=document) => r.querySelector(s);
@@ -458,12 +452,17 @@ document.title = GAME + " – Das Gleich-gedacht-Spiel";
 $("#logo").textContent = GAME;
 
 /* ---------- Navigation ---------- */
-function show(v){
-  $$(".view").forEach(s => s.classList.toggle("active", s.id === "v-"+v));
-  $$(".tab").forEach(b => b.classList.toggle("active", b.dataset.v === v));
-  window.scrollTo(0,0);
+const hist = ["start"];
+function show(v, push = true){
+  $$(".view").forEach(s => s.classList.toggle("active", s.id === "v-" + v));
+  if(push) hist.push(v);
+  window.scrollTo(0, 0);
 }
-$$(".tab").forEach(b => b.addEventListener("click", () => show(b.dataset.v)));
+function back(){ if(hist.length > 1) hist.pop(); show(hist[hist.length - 1], false); }
+document.addEventListener("click", e => {
+  const g = e.target.closest("[data-go]"); if(g){ show(g.dataset.go); return; }
+  if(e.target.closest("[data-back]")) back();
+});
 
 /* ---------- Druck ---------- */
 function doPrint(kind, html){
@@ -474,102 +473,112 @@ function doPrint(kind, html){
 }
 window.addEventListener("afterprint", () => { document.body.removeAttribute("data-print"); $("#print-area").innerHTML = ""; });
 
-/* ---------- Karten ---------- */
-let filter = "all", deck = [], pos = -1;
-const pool = () => ALL.filter(c => filter === "all" || c.theme === filter);
-
-function buildChips(){
-  const box = $("#chips");
-  const mk = (id, name, color) => `<button class="chip${filter===id?" on":""}" data-f="${id}" style="--tc:${color||"transparent"}">${color?"<i></i>":""}${esc(name)}</button>`;
-  box.innerHTML = mk("all","Alle Themen") + THEMES.map(t => mk(t.id, t.name, t.color)).join("");
-  $$(".chip", box).forEach(c => c.addEventListener("click", () => { filter = c.dataset.f; buildChips(); newDeck(); next(); $("#setlist").hidden = true; $("#setactions").hidden = true; }));
-  $("#pcount").textContent = pool().length;
+/* ---------- Schwierigkeit ---------- */
+let sel = store.get("habich_level1", null);
+if(!Array.isArray(sel) || !sel.length) sel = ["l", "m"];
+const pool = () => ALL.filter(c => sel.includes(c.lv));
+function buildLevels(){
+  ["tisch", "lobby"].forEach(w => {
+    $("#lv-" + w).innerHTML = LEVELS.map(l => `<button class="chip${sel.includes(l.id) ? " on" : ""}" data-l="${l.id}" style="--tc:${l.color}"><i></i>${l.name}</button>`).join("");
+    $("#lvn-" + w).textContent = pool().length + " Fragen im Topf · mehrere Stufen sind möglich";
+    $$("#lv-" + w + " .chip").forEach(c => c.addEventListener("click", () => {
+      const id = c.dataset.l;
+      if(sel.includes(id)){ if(sel.length > 1) sel = sel.filter(x => x !== id); }
+      else sel = LEVELS.map(l => l.id).filter(x => sel.includes(x) || x === id);
+      store.set("habich_level1", sel); buildLevels();
+    }));
+  });
 }
-function newDeck(){ deck = shuffle(pool().map(c => c.id)); pos = -1; }
-function renderCard(){
-  const c = ALL[deck[pos]], th = themeOf(c.theme);
+
+/* ---------- Kartenansicht (Tisch) ---------- */
+let G = null, hintT = null;
+function take(){ if(G.di >= G.deck.length){ G.deck = shuffle(pool().map(c => c.id)); G.di = 0; } return G.deck[G.di++]; }
+function renderK(){
   const card = $("#bigcard");
-  card.style.setProperty("--tc", th.color);
-  $("#c-theme").textContent = th.name;
-  $("#c-cat").textContent = c.t;
-  $("#c-nr").textContent = "Nr. " + (c.id + 1);
-  $("#c-pos").textContent = (pos + 1) + " / " + deck.length;
   card.classList.remove("pop"); void card.offsetWidth; card.classList.add("pop");
+  const c = ALL[G.cur], lv = lvOf(c.lv);
+  card.style.setProperty("--tc", lv.color);
+  $("#c-theme").textContent = lv.name;
+  $("#c-cat").textContent = c.t;
+  $("#c-nr").textContent = "Frage " + (c.id + 1);
+  $("#c-pos").textContent = "";
+  $("#k-mid").textContent = "Karte " + G.n;
+  $("#k-prev").disabled = G.stack.length === 0;
 }
-function next(){ pos++; if(pos >= deck.length){ newDeck(); pos = 0; } renderCard(); }
-function prev(){ if(pos > 0){ pos--; renderCard(); } }
-$("#b-next").addEventListener("click", next);
-$("#b-prev").addEventListener("click", prev);
+function hideHint(){ clearTimeout(hintT); $("#rothint").hidden = true; }
+function rotHint(){
+  if(!window.matchMedia("(orientation:portrait)").matches) return;
+  $("#rothint").hidden = false;
+  clearTimeout(hintT); hintT = setTimeout(hideHint, 2600);
+}
+window.matchMedia("(orientation:landscape)").addEventListener("change", e => { if(e.matches) hideHint(); });
+$("#rothint").addEventListener("click", hideHint);
+function startGame(){
+  G = {deck: shuffle(pool().map(c => c.id)), di:0, n:1, cur:null, stack:[]};
+  G.cur = take(); show("karte"); renderK(); rotHint();
+}
+function kNext(){ G.stack.push({cur:G.cur, n:G.n}); G.cur = take(); G.n++; renderK(); }
+function kPrev(){ const s = G.stack.pop(); if(!s) return; G.cur = s.cur; G.n = s.n; renderK(); }
+$("#b-start").addEventListener("click", startGame);
+$("#k-next").addEventListener("click", kNext);
+$("#k-prev").addEventListener("click", kPrev);
+$("#k-exit").addEventListener("click", () => { if(confirm("Zurück zum Menü?")){ G = null; hideHint(); back(); } });
+$("#k-rules").addEventListener("click", () => { $("#krules").hidden = false; });
+$("#k-rules-x").addEventListener("click", () => { $("#krules").hidden = true; });
 document.addEventListener("keydown", e => {
-  if($("#v-karten").classList.contains("active") && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)){
-    if(e.key === "ArrowRight" || e.key === " "){ e.preventDefault(); next(); }
-    if(e.key === "ArrowLeft") prev();
+  if(G && $("#v-karte").classList.contains("active")){
+    if(e.key === "ArrowRight" || e.key === " "){ e.preventDefault(); kNext(); }
+    if(e.key === "ArrowLeft") kPrev();
   }
 });
-
-let currentSet = [];
-$("#b-set").addEventListener("click", () => {
-  currentSet = shuffle(pool().map(c => c.id)).slice(0, 9);
-  $("#setlist").innerHTML = [0,1,2].map(r => `<li class="rh">Runde ${r+1}</li>` +
-    currentSet.slice(r*3, r*3+3).map(id => `<li>${esc(ALL[id].t)}<small>${esc(themeOf(ALL[id].theme).name)}</small></li>`).join("")).join("");
-  $("#setlist").hidden = false; $("#setactions").hidden = false;
-});
-
-function cardsHTML(ids){
-  const per = 24, pages = [];
-  for(let i=0; i<ids.length; i+=per){
-    const part = ids.slice(i, i+per).map(id => {
-      const c = ALL[id];
-      return `<div class="pcard"><div class="in"><div class="th">${esc(themeOf(c.theme).name)}</div><div class="ct">${esc(c.t)}</div><div class="nr">3 Begriffe · ${esc(GAME)} ${c.id+1}</div></div></div>`;
-    }).join("");
-    pages.push(`<div class="ppage"><div class="pcards">${part}</div></div>`);
-  }
-  return pages.join("");
-}
-$("#b-printcards").addEventListener("click", () => doPrint("cards", cardsHTML(pool().map(c => c.id))));
-$("#b-setprint").addEventListener("click", () => { if(currentSet.length) doPrint("cards", cardsHTML(currentSet)); });
 
 /* ---------- Spielplan ---------- */
-function sheetHTML(withRules){
-  const cell = `<div class="c"><span class="st">☆</span></div>`;
-  const side = n => `<div class="b side"><span>+${n}</span><i></i></div>`;
-  const under = n => `<div class="b under"><span>+${n}</span><i></i></div>`;
+function roundPoly(pts, k){
+  const n = pts.length; let d = "";
+  for(let i=0; i<n; i++){
+    const p = pts[i], a = pts[(i+n-1)%n], c = pts[(i+1)%n];
+    const mv = (q, t) => { const dx = q[0]-p[0], dy = q[1]-p[1], l = Math.hypot(dx, dy); return [p[0] + dx / l * Math.min(t, l / 2), p[1] + dy / l * Math.min(t, l / 2)]; };
+    const A = mv(a, k), C = mv(c, k);
+    d += (i ? " L" : "M") + A[0].toFixed(1) + "," + A[1].toFixed(1) + " Q" + p[0].toFixed(1) + "," + p[1].toFixed(1) + " " + C[0].toFixed(1) + "," + C[1].toFixed(1);
+  }
+  return d + " Z";
+}
+function sheet3HTML(){
+  const star = `<svg class="st" viewBox="-26 -26 52 52" fill="none" stroke="#000" stroke-width="2.6" stroke-linejoin="round" aria-hidden="true"><path d="${roundPoly(SV, 2.6)}"/></svg>`;
+  const cell = `<div class="c">${star}</div>`;
+  const side = n => `<div class="b side"><i>${n}</i></div>`;
+  const under = n => `<div class="b under"><i>${n}</i></div>`;
   const rows = [1,2,3].map(n => cell.repeat(3) + side(n)).join("") + [1,2,3].map(under).join("") + `<div></div>`;
-  const rules = withRules ? `<div class="sh-rules"><b>So geht’s:</b> Pro Karte 3 Begriffe in freie Felder schreiben, kein Begriff doppelt. Dann reihum einen Begriff vorlesen, die anderen sagen nur „habe ich“ oder „nicht“. Treffer: <b>umkreisen</b> = 1 Punkt. Niemand: <b>durchstreichen</b>. Genau ein anderer: <b>Stern ausmalen</b> = +1. Reihen (von oben) 1 / 2 / 3 Punkte, Spalten (von links) 1 / 2 / 3 Punkte, wenn alle drei Begriffe umkreist sind.</div>` : "";
-  return `<div class="sheet">
-    <div class="sh-head"><div class="sh-title">${esc(GAME)}<small>…auch!</small></div><div class="sh-name">Name <span class="line"></span></div></div>
-    <div class="sh-cats"><span>1<i></i></span><span>2<i></i></span><span>3<i></i></span></div>
-    <div class="sh-grid">${rows}</div>
-    <div class="sh-total"><span class="f">Kreise <i></i></span><span>+</span><span class="f">Sterne <i></i></span><span>+</span><span class="f">Linien <i></i></span><span>=</span><span class="f">Gesamt <i></i></span></div>
-    ${rules}
+  return `<div class="sheet s3">
+    <div class="s3-l"><div class="sh-grid">${rows}</div></div>
+    <div class="s3-r">
+      <div><div class="sh-title">${esc(GAME)}<small>…auch!</small></div>
+      <div class="sh-name">Name <span class="line"></span></div></div>
+      <div class="s3-tot">
+        <div class="r"><svg viewBox="0 0 24 16" fill="none" stroke="#000" stroke-width="1.6" stroke-linecap="round"><path d="M6 10 C3 5 9 1.5 15 2.2 C21.5 3 23 9 18.5 12.8 C14 15.5 6.5 14.5 4.5 10.2 C3.5 7.5 5.5 5 8.5 4.2"/></svg><span>× 1</span><i></i></div>
+        <div class="r"><svg viewBox="-26 -26 52 52" fill="none" stroke="#000" stroke-width="3" stroke-linejoin="round"><path d="${roundPoly(SV, 2.6)}"/></svg><span>× 2</span><i></i></div>
+        <div class="r"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1"><rect x="2" y="2" width="20" height="20"/><line x1="8.7" y1="2" x2="8.7" y2="22"/><line x1="15.3" y1="2" x2="15.3" y2="22"/><line x1="2" y1="8.7" x2="22" y2="8.7"/><line x1="2" y1="15.3" x2="22" y2="15.3"/><rect x="2" y="2" width="20" height="6.7" stroke-width="2.4"/><rect x="2" y="2" width="6.7" height="20" stroke-width="2.4"/></svg><span>1·2·3</span><i></i></div>
+        <div class="r g"><span>Gesamt</span><i></i></div>
+      </div>
+    </div>
   </div>`;
 }
-let perPage = 2;
 function planInfo(){
   const n = Math.max(1, Math.min(12, parseInt($("#nplayers").value, 10) || 1));
   const sheets = n * (+$("#nrounds").value);
-  const pages = Math.ceil(sheets / perPage);
-  $("#plansum").textContent = sheets + (sheets === 1 ? " Zettel" : " Zettel") + " auf " + pages + (pages === 1 ? " Seite" : " Seiten");
+  const pages = Math.ceil(sheets / 3);
+  $("#plansum").textContent = sheets + " Zettel auf " + pages + (pages === 1 ? " Seite" : " Seiten");
   return sheets;
 }
-function renderPrev(){ $("#planprev").innerHTML = sheetHTML(perPage === 1); planInfo(); }
-$$("#seg button").forEach(b => b.addEventListener("click", () => {
-  perPage = +b.dataset.n;
-  $$("#seg button").forEach(x => x.classList.toggle("on", x === b));
-  renderPrev();
-}));
+function renderPrev(){ $("#planprev").innerHTML = sheet3HTML(); planInfo(); }
 $("#nplayers").addEventListener("input", planInfo);
 $("#nrounds").addEventListener("change", planInfo);
 $("#b-printplan").addEventListener("click", () => {
-  const sheets = planInfo();
+  const sheets = planInfo(), one = sheet3HTML();
   let html = "";
-  for(let i=0; i<sheets; i+=perPage){
-    if(perPage === 2){
-      const pair = sheets - i >= 2;
-      html += `<div class="ppage two">${sheetHTML(false)}${pair ? `<div class="cut"></div>` + sheetHTML(false) : ""}</div>`;
-    } else {
-      html += `<div class="ppage one">${sheetHTML(true)}</div>`;
-    }
+  for(let i=0; i<sheets; i+=3){
+    const cnt = Math.min(3, sheets - i);
+    html += `<div class="ppage three">` + Array.from({length:cnt}, () => one).join(`<div class="cut"></div>`) + `</div>`;
   }
   doPrint("plan", html);
 });
@@ -584,7 +593,7 @@ const zSave = () => store.set("habich_zettel4", z);
 function scoreOf(rd){
   const o = i => rd.cells[i].s === 1;
   const circles = rd.cells.filter(c => c.s === 1).length;
-  const stars = rd.cells.filter(c => c.s === 1 && c.st).length;
+  const stars = rd.cells.filter(c => c.s === 1 && c.st).length * 2;
   const rowOn = [0,0,0], colOn = [0,0,0]; let lines = 0;
   for(let i=0; i<3; i++){
     if(o(3*i) && o(3*i+1) && o(3*i+2)){ rowOn[i] = 1; lines += i + 1; }
@@ -728,7 +737,7 @@ function zUpdate(){
   res.hidden = !z.evald;
   if(z.evald){
     res.innerHTML = `<div class="rr"><span>Begriffe (umkreist)</span><b>${sc.circles}</b></div>
-      <div class="rr"><span>Sterne ★</span><b>${sc.stars}</b></div>
+      <div class="rr"><span>Sterne ★ (je 2)</span><b>${sc.stars}</b></div>
       <div class="rr"><span>Reihen &amp; Spalten</span><b>${sc.lines}</b></div>
       <div class="rr tot"><span>Runde ${z.round+1}</span><b>${sc.total}</b></div>`;
   }
@@ -826,56 +835,13 @@ $("#pad-ok").addEventListener("click", () => {
 });
 window.addEventListener("resize", () => { if(!$("#pad").hidden){ padSize(); padDraw(); } });
 
-/* ---------- Punktezähler ---------- */
-let P = store.get("habich_punkte2", null);
-if(!P || !Array.isArray(P.players)) P = {players:["Spieler 1","Spieler 2","Spieler 3"], scores:[[],[],[]], rounds:3};
-function pSave(){ store.set("habich_punkte2", P); }
-function pTotals(){
-  const t = P.scores.map(r => r.reduce((a,v) => a + (+v || 0), 0));
-  const max = Math.max(...t, 0);
-  $$("#ptable tr[data-p]").forEach(tr => {
-    const i = +tr.dataset.p;
-    $(".tot", tr).textContent = t[i];
-    tr.classList.toggle("lead", t[i] === max && max > 0);
-  });
-}
-function pBuild(){
-  let h = `<tr><th style="text-align:left">Spieler</th>`;
-  for(let r=0; r<P.rounds; r++) h += `<th>${r+1}</th>`;
-  h += `<th>Σ</th><th></th></tr>`;
-  P.players.forEach((name,i) => {
-    h += `<tr data-p="${i}"><td class="nm"><input type="text" value="${esc(name)}" data-n="${i}" maxlength="20" aria-label="Name"></td>`;
-    for(let r=0; r<P.rounds; r++) h += `<td><input class="sc" type="number" inputmode="numeric" data-p="${i}" data-r="${r}" value="${P.scores[i][r] ?? ""}" aria-label="Runde ${r+1}"></td>`;
-    h += `<td class="tot">0</td><td class="x"><button data-x="${i}" aria-label="Spieler entfernen">✕</button></td></tr>`;
-  });
-  $("#ptable").innerHTML = h;
-  $$("#ptable input.sc").forEach(inp => inp.addEventListener("input", () => {
-    P.scores[+inp.dataset.p][+inp.dataset.r] = inp.value === "" ? "" : +inp.value; pSave(); pTotals();
-  }));
-  $$("#ptable input[data-n]").forEach(inp => inp.addEventListener("input", () => { P.players[+inp.dataset.n] = inp.value; pSave(); }));
-  $$("#ptable button[data-x]").forEach(b => b.addEventListener("click", () => {
-    const i = +b.dataset.x; P.players.splice(i,1); P.scores.splice(i,1); pSave(); pBuild();
-  }));
-  pTotals();
-}
-$("#b-padd").addEventListener("click", () => {
-  const inp = $("#pname"), n = inp.value.trim() || "Spieler " + (P.players.length + 1);
-  P.players.push(n); P.scores.push([]); inp.value = ""; pSave(); pBuild();
-});
-$("#pname").addEventListener("keydown", e => { if(e.key === "Enter") $("#b-padd").click(); });
-$("#b-pround").addEventListener("click", () => { P.rounds++; pSave(); pBuild(); });
-$("#b-preset").addEventListener("click", () => {
-  if(!confirm("Alle Spieler und Punkte löschen?")) return;
-  P = {players:["Spieler 1","Spieler 2","Spieler 3"], scores:[[],[],[]], rounds:3}; pSave(); pBuild();
-});
-
 /* ---------- Regeln ---------- */
 function rulesHTML(print){
   return `${print ? `<h1>${esc(GAME)} …auch!</h1>` : ""}
   <h3>Worum geht’s?</h3>
   <p>Ihr bekommt 3 Kategorien und schreibt zu jeder heimlich 3 Begriffe auf. Danach lest ihr reihum Begriffe vor und findet heraus, was ihr gemeinsam gedacht habt. Es gibt keine falschen Antworten, nur solche, die sonst niemand hatte. Gespielt werden 3 Runden.</p>
   <h3>Das braucht ihr</h3>
-  <ul><li>3 bis 8 Personen, ab ca. 10 Jahren</li><li>Pro Person und Runde einen Spielzettel (ausdrucken oder den digitalen Zettel nehmen) und einen Stift</li><li>Die Kategorienkarten aus der App oder den ausgeschnittenen Kartenbogen</li></ul>
+  <ul><li>3 bis 8 Personen, ab ca. 10 Jahren</li><li>Pro Person und Runde einen Spielzettel (ausdrucken oder digital) und einen Stift</li><li>Ein Handy, das die Fragen zeigt (Tisch-Modus), oder jede Person spielt mit dem eigenen Handy in einer Lobby</li></ul>
   <h3>Schreiben: 3 Karten, 9 Begriffe</h3>
   <ol>
     <li>Eine Karte wird gezogen und die Kategorie vorgelesen.</li>
@@ -889,7 +855,7 @@ function rulesHTML(print){
     <li>Alle prüfen, ob sie diesen Begriff auch aufgeschrieben haben (egal zu welcher Karte) und sagen nur „habe ich“ oder „habe ich nicht“.</li>
     <li><b>Umkreisen:</b> Hat mindestens eine andere Person den Begriff, wird er bei allen Beteiligten umkreist. Das bringt je 1 Punkt.</li>
     <li><b>Durchstreichen:</b> Hat niemand ihn, streicht die vorlesende Person ihn durch. Das bringt 0 Punkte.</li>
-    <li><b>Stern ausmalen:</b> Hatte genau eine andere Person denselben Begriff, malen beide den Stern im Feld aus. Das ist 1 Bonuspunkt für jede der beiden.</li>
+    <li><b>Stern ausmalen:</b> Hatte genau eine andere Person denselben Begriff, malen beide den Stern im Feld aus. Das sind 2 Bonuspunkte für jede der beiden.</li>
     <li>Dann ist die nächste Person dran und liest einen Begriff vor, und so weiter.</li>
   </ol>
   <p>Einzahl und Mehrzahl, Schreibweise oder „der/die/das“ ignoriert ihr beim Vergleichen. Bei Zweifeln entscheidet die Runde.</p>
@@ -900,19 +866,19 @@ function rulesHTML(print){
   <ul><li><b>Reihen von oben nach unten:</b> 1, 2 und 3 Punkte</li><li><b>Spalten von links nach rechts:</b> 1, 2 und 3 Punkte</li></ul>
   <p>Weil ihr frei platzieren dürft, lohnt sich Taktik: Wohin schreibst du einen sicheren Begriff, und wohin einen mutigen?</p>
   <h3>Punkte einer Runde</h3>
-  <p>Kreise + Sterne + Reihen- und Spaltenbonus, höchstens 30 Punkte. Auf dem digitalen Zettel erledigt „Auswerten“ das Rechnen.</p>
+  <p>Jeder Kreis zählt 1 Punkt, jeder Stern 2 Punkte, dazu kommt der Reihen- und Spaltenbonus. Auf dem digitalen Zettel erledigt „Auswerten“ das Rechnen.</p>
   <div class="ex"><b>Beispiel:</b> Du hast unter anderem „Licht“ und „Fernseher“ geschrieben. Anna liest „Licht“ vor. Du und Ben habt es auch, also wird es bei allen dreien umkreist. Danach liest Ben „Fernseher“ vor. Nur du hast ihn auch. Ihr malt beide den Stern aus und umkreist den Begriff. Dann liest du „Handy“ vor. Niemand hat es, du streichst es durch.</div>
   <h3>Spielende</h3>
-  <p>Nach 3 Runden zählt ihr die Rundenpunkte zusammen. Auf den Ausdrucken gilt jeder Zettel für eine Runde, tragt die Summen deshalb im Punktezähler ein oder notiert sie auf einem Blatt. Wer am Ende die meisten Punkte hat, gewinnt. Bei Gleichstand teilt ihr euch den Sieg.</p>
+  <p>Nach 3 Runden zählt ihr die Rundenpunkte zusammen. Auf den Ausdrucken gilt jeder Zettel für eine Runde, notiert die Summen deshalb auf einem Blatt. Wer am Ende die meisten Punkte hat, gewinnt. Bei Gleichstand teilt ihr euch den Sieg.</p>
   <h3>Tipps</h3>
   <ul><li>Denk nicht daran, was dir einfällt, sondern was <i>den anderen</i> einfällt.</li><li>Ein sicherer und ein mutiger Begriff pro Karte ist oft eine gute Mischung.</li><li>Lies zuerst die Begriffe vor, bei denen du dir unsicher bist, solange du noch freie Auswahl hast.</li></ul>`;
 }
 $("#rules").innerHTML = rulesHTML(false);
+$("#rules-lobby").innerHTML = rulesHTML(false);
 $("#b-printrules").addEventListener("click", () => doPrint("rules", `<div class="prules">${rulesHTML(true)}</div>`));
 
 /* ---------- Start ---------- */
-buildChips(); newDeck(); next();
-renderPrev(); zBuild(); pBuild();
+buildLevels(); renderPrev(); zBuild();
 </script>
 </body>
 </html>
