@@ -182,7 +182,7 @@ table.pt{border-collapse:collapse; width:100%; min-width:360px}
 .zc .sb svg{width:100%; height:100%; display:block}
 .zc .sb:disabled{opacity:.35; cursor:default}
 .zc.o{background:#fff}
-.padov{position:fixed; inset:0; z-index:50; background:var(--paper); display:flex; align-items:center; justify-content:center; padding:10px}
+.padov{position:fixed; inset:0; z-index:50; background:var(--paper); display:flex; align-items:center; justify-content:center; padding:10px var(--padr,16px) 10px var(--padl,16px)}
 .padov[hidden]{display:none}
 .padbox{display:flex; flex-direction:column; align-items:center}
 .padhead{width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:8px}
@@ -204,6 +204,9 @@ table.pt{border-collapse:collapse; width:100%; min-width:360px}
 .bigbtn:disabled{opacity:.55; cursor:default; box-shadow:3px 3px 0 var(--ink)}
 .topbar{display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 12px}
 h3.sec{font-size:1rem; margin:18px 0 8px; font-weight:900}
+.lvnote.used{margin-top:-8px}
+.linkbtn{font:inherit; font-weight:800; background:none; border:0; text-decoration:underline; color:var(--ink); padding:4px 8px; cursor:pointer}
+.linkbtn:disabled{opacity:.35; cursor:default}
 .lvnote{font-weight:600; font-size:.88rem; opacity:.7; margin:-6px 0 14px}
 details.lrules{margin-top:18px}
 details.lrules summary{font-weight:800; cursor:pointer; padding:10px 14px; background:#fff; border:3px solid var(--ink); border-radius:14px; box-shadow:3px 3px 0 var(--ink); list-style:none}
@@ -227,7 +230,7 @@ details.lrules[open] summary{margin-bottom:12px}
 #v-karte .bigcard .cat.small{font-size:clamp(1.2rem,calc(var(--vmn,390px)*.065),2.4rem)}
 .kfoot{display:flex; justify-content:space-between; align-items:center; gap:10px; padding-right:6px}
 .kfoot .btn{font-size:1.05rem}
-.krules{position:absolute; inset:8px; z-index:5; background:#fff; border:3px solid var(--ink); border-radius:18px; padding:14px 20px; overflow:auto; box-shadow:4px 4px 0 var(--ink)}
+.krules{position:absolute; inset:8px var(--padr,16px) 8px var(--padl,16px); z-index:5; background:#fff; border:3px solid var(--ink); border-radius:18px; padding:14px 20px; overflow:auto; box-shadow:4px 4px 0 var(--ink)}
 .krules[hidden]{display:none}
 .krules ol{padding-left:1.2em; margin:8px 0}
 .krules li{margin:4px 0; line-height:1.4}
@@ -279,8 +282,16 @@ body.ingame{overscroll-behavior-y:none}
 .zrs .zr{padding:3px 8px}
 .zact{display:flex; justify-content:flex-end; padding-right:6px}
 .zact .btn{font-size:.95rem; white-space:nowrap; padding:.6em .8em}
-.zov{position:absolute; inset:8px; z-index:6; background:#fff; border:3px solid var(--ink); border-radius:18px; padding:14px 20px; overflow:auto; box-shadow:4px 4px 0 var(--ink)}
+.zov{position:absolute; inset:8px var(--padr,16px) 8px var(--padl,16px); z-index:6; background:#fff; border:3px solid var(--ink); border-radius:18px; padding:14px 20px; overflow:auto; box-shadow:4px 4px 0 var(--ink)}
 .zov[hidden]{display:none}
+.zbig{position:absolute; inset:0; z-index:8; background:var(--paper); display:flex; align-items:center; justify-content:center; text-align:center; padding:0 var(--padr,16px) 0 var(--padl,16px); transition:opacity .35s}
+.zbig[hidden]{display:none}
+.zbig.fade{opacity:0}
+.zbig-in{display:flex; flex-direction:column; align-items:center; gap:10px; max-width:90%}
+.zbig small{font-weight:800; opacity:.6; font-size:1rem}
+.zbig b{font-size:clamp(2rem,15vh,4.2rem); font-weight:900; line-height:1.1; transform-origin:center; transition:transform .45s ease; display:block}
+.zbig span{font-weight:700; opacity:.5; margin-top:8px}
+.zbig.go span,.zbig.go small{opacity:0; transition:opacity .2s}
 .zov table{border-collapse:collapse; width:100%; margin:10px 0}
 .zov td,.zov th{padding:6px 10px; text-align:center; border-bottom:1.5px solid rgba(0,0,0,.18)}
 .zov td:first-child,.zov th:first-child{text-align:left}
@@ -336,6 +347,7 @@ body.ingame{overscroll-behavior-y:none}
     <h3 class="sec">Schwierigkeit</h3>
     <div class="chips" id="lv-tisch"></div>
     <p class="lvnote" id="lvn-tisch"></p>
+    <p class="lvnote used" id="used-tisch"></p>
     <div class="bigbtns">
       <button class="bigbtn a" id="b-start"><b>Spiel starten</b><span>Fragen im Querformat anzeigen</span></button>
       <button class="bigbtn" data-go="plan"><b>Zettel drucken</b><span>Schwarz-weiß, 3 pro Seite</span></button>
@@ -350,6 +362,7 @@ body.ingame{overscroll-behavior-y:none}
     <h3 class="sec">Schwierigkeit</h3>
     <div class="chips" id="lv-lobby"></div>
     <p class="lvnote" id="lvn-lobby"></p>
+    <p class="lvnote used" id="used-lobby"></p>
     <div class="bigbtns">
       <button class="bigbtn b" disabled><b>Neuer Raum</b><span>Kommt bald</span></button>
       <button class="bigbtn" disabled><b>Beitreten</b><span>Kommt bald</span></button>
@@ -381,7 +394,7 @@ body.ingame{overscroll-behavior-y:none}
     <div class="zbar">
       <button class="btn small alt" id="z-exit">‹ Beenden</button>
       <div class="zq"><small id="zqn"></small><b id="zqt"></b></div>
-      <button class="btn small alt" id="z-qnext">Frage ›</button>
+      <button class="btn small alt" id="z-qnext" disabled>Weiter ›</button>
       <button class="btn small alt fsbtn" id="z-fs" aria-label="Vollbild an oder aus">⛶</button>
       <button class="btn small alt" id="z-stand">Stand</button>
       <button class="btn small alt" id="z-rules">Regeln</button>
@@ -397,6 +410,7 @@ body.ingame{overscroll-behavior-y:none}
       </div>
     </div>
     <div class="zov" id="zov" hidden></div>
+    <div class="zbig" id="zbig" hidden><div class="zbig-in"><small id="zbig-n"></small><b id="zbig-t"></b><span id="zbig-h">Tippen zum Schreiben</span></div></div>
   </section>
   <div class="padov" id="pad" hidden>
     <div class="padbox">
@@ -461,7 +475,7 @@ body.ingame{overscroll-behavior-y:none}
 <script>
 "use strict";
 const GAME = "Hab ich";
-const VERSION = "0.6";
+const VERSION = "0.9";
 
 const LEVELS = [
   {id:"k", name:"Kinder", color:"#f4b63c"},
@@ -558,6 +572,18 @@ function doPrint(kind, html){
 let sel = store.get("habich_level1", null);
 if(!Array.isArray(sel) || !sel.length) sel = ["l", "m"];
 const pool = () => ALL.filter(c => sel.includes(c.lv));
+let used = store.get("habich_used1", []); if(!Array.isArray(used)) used = [];
+const markUsed = id => { if(!used.includes(id)){ used.push(id); store.set("habich_used1", used); updUsed(); } };
+function freshIds(){
+  let f = pool().filter(c => !used.includes(c.id)).map(c => c.id);
+  if(f.length < 3){ const ids = pool().map(c => c.id); used = used.filter(u => !ids.includes(u)); store.set("habich_used1", used); f = ids; }
+  return shuffle(f);
+}
+function updUsed(){
+  const ids = pool().map(c => c.id), n = used.filter(u => ids.includes(u)).length;
+  ["tisch", "lobby"].forEach(w => { const e = $("#used-" + w); if(e) e.innerHTML = `Schon gespielt: <b>${n}</b> von ${ids.length} Fragen <button class="linkbtn" data-reset ${n ? "" : "disabled"}>Zurücksetzen</button>`; });
+  $$("[data-reset]").forEach(b => b.onclick = () => { const ids2 = pool().map(c => c.id); used = used.filter(u => !ids2.includes(u)); store.set("habich_used1", used); updUsed(); });
+}
 function buildLevels(){
   ["tisch", "lobby"].forEach(w => {
     $("#lv-" + w).innerHTML = LEVELS.map(l => `<button class="chip lv${sel.includes(l.id) ? " on" : ""}" data-l="${l.id}" style="--tc:${l.color}" aria-pressed="${sel.includes(l.id)}"><i></i>${l.name}${sel.includes(l.id) ? " ✓" : ""}</button>`).join("");
@@ -569,11 +595,12 @@ function buildLevels(){
       store.set("habich_level1", sel); buildLevels();
     }));
   });
+  updUsed();
 }
 
 /* ---------- Kartenansicht (Tisch) ---------- */
 let G = null, hintT = null;
-function take(){ if(G.di >= G.deck.length){ G.deck = shuffle(pool().map(c => c.id)); G.di = 0; } return G.deck[G.di++]; }
+function take(){ if(G.di >= G.deck.length){ G.deck = freshIds(); G.di = 0; } const id = G.deck[G.di++]; markUsed(id); return id; }
 function renderK(){
   const card = $("#bigcard");
   card.classList.remove("pop"); void card.offsetWidth; card.classList.add("pop");
@@ -595,7 +622,7 @@ function rotHint(){
 window.matchMedia("(orientation:landscape)").addEventListener("change", e => { if(e.matches) hideHint(); });
 $("#rothint").addEventListener("click", hideHint);
 function startGame(){
-  G = {deck: shuffle(pool().map(c => c.id)), di:0, n:1, cur:null, stack:[]};
+  G = {deck: freshIds(), di:0, n:1, cur:null, stack:[]};
   G.cur = take(); show("karte"); renderK(); rotHint();
 }
 function kNext(){ G.stack.push({cur:G.cur, n:G.n}); G.cur = take(); G.n++; renderK(); }
@@ -678,7 +705,7 @@ const mkCells = () => Array.from({length:9}, () => ({ink:[], s:0, st:false, seed
 let z = store.get("habich_zettel5", null);
 if(!z || !Array.isArray(z.cells) || z.cells.length !== 9 || !Array.isArray(z.scores)) z = {round:0, scores:[null,null,null], cells:mkCells(), mode:"w", evald:false, qs:[], qi:0};
 const zSave = () => store.set("habich_zettel5", z);
-function zDraw(){ z.qs = shuffle(pool().map(c => c.id)).slice(0, 3); z.qi = 0; }
+function zDraw(){ z.qs = freshIds().slice(0, 3); z.qi = 0; z.seen = null; }
 
 function scoreOf(rd){
   const o = i => rd.cells[i].s === 1;
@@ -826,7 +853,14 @@ function zUpdate(){
   $$("#zgrid .lb[data-col]").forEach(b => b.classList.toggle("on", z.evald && !!sc.colOn[+b.dataset.col]));
   $("#zqn").textContent = "Runde " + (z.round + 1) + " von 3 · Frage " + (z.qi + 1) + " von 3";
   $("#zqt").textContent = ALL[z.qs[z.qi]].t;
-  $("#z-qnext").textContent = z.qi < 2 ? "Frage ›" : "‹ Frage 1";
+  const filled = z.cells.filter(c => c.ink && c.ink.length).length, need = 3 * (z.qi + 1);
+  const qb = $("#z-qnext");
+  qb.hidden = z.mode === "m" || z.evald;
+  qb.textContent = z.qi < 2 ? "Weiter ›" : "Vergleichen ›";
+  qb.disabled = filled < need;
+  $("#zqn").textContent += " · Wörter " + Math.min(filled, need) + "/" + need;
+  const key = z.round * 3 + z.qi;
+  if(z.seen !== key && $("#v-zettel").classList.contains("active") && !z.evald && z.mode === "w") showBig(key);
   const res = $("#zres");
   res.hidden = !z.evald;
   if(z.evald){
@@ -882,10 +916,31 @@ $("#b-znext").addEventListener("click", () => {
   z.round++; z.cells = mkCells(); z.evald = false; z.mode = "w"; zDraw(); zBuild();
 });
 $$("#zmode button").forEach(b => b.addEventListener("click", () => { z.mode = b.dataset.m; zUpdate(); }));
-$("#z-qnext").addEventListener("click", () => { z.qi = (z.qi + 1) % 3; zUpdate(); });
+$("#z-qnext").addEventListener("click", () => {
+  if($("#z-qnext").disabled) return;
+  if(z.qi < 2){ z.qi++; zUpdate(); } else { z.mode = "m"; zUpdate(); }
+});
 $("#z-stand").addEventListener("click", zStand);
 $("#z-rules").addEventListener("click", () => zOv(`<h3 style="margin:0 0 6px">Kurzregeln</h3>` + $("#krules ol").outerHTML));
 $("#z-exit").addEventListener("click", () => { if(confirm("Zurück zum Menü?")){ hideHint(); $("#zov").hidden = true; back(); } });
+function showBig(key){
+  z.seen = key; markUsed(z.qs[z.qi]);
+  $("#zbig-n").textContent = "Runde " + (z.round + 1) + " von 3 · Frage " + (z.qi + 1) + " von 3";
+  $("#zbig-t").textContent = ALL[z.qs[z.qi]].t; $("#zbig-t").style.transform = "";
+  const o = $("#zbig"); o.classList.remove("fade", "go"); o.hidden = false;
+}
+$("#zbig").addEventListener("click", () => {
+  const o = $("#zbig"), t = $("#zbig-t"); if(o.classList.contains("go")) return;
+  o.classList.add("go");
+  const portrait = matchMedia("(orientation:portrait)").matches;
+  if(!portrait){
+    const a = t.getBoundingClientRect(), b = $("#zqt").getBoundingClientRect();
+    const sc = Math.min(1, b.height && a.height ? Math.max(.2, (b.height) / a.height) : .3);
+    t.style.transform = `translate(${b.left + b.width/2 - a.left - a.width/2}px, ${b.top + b.height/2 - a.top - a.height/2}px) scale(${sc})`;
+  }
+  setTimeout(() => o.classList.add("fade"), 250);
+  setTimeout(() => { o.hidden = true; o.classList.remove("fade", "go"); }, 650);
+});
 function zEnter(){ zUpdate(); rotHint(); }
 
 const pad = {i:-1, strokes:[], cur:null, w:0, h:0, d:1};
