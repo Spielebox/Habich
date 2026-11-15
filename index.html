@@ -264,16 +264,19 @@ body.ingame{overscroll-behavior-y:none}
 .zq b{font-size:clamp(.95rem,calc(var(--vmn,390px)*.036),1.4rem); font-weight:900}
 .zbody{flex:1; min-height:0; display:flex; gap:12px}
 .zleft{display:flex; flex-direction:column; align-items:flex-start; gap:8px; min-width:0}
-#v-zettel .dz{--chrome:185px; --ch:calc((var(--vmn,390px) - var(--chrome))/3); --cw:min(calc((var(--vmx,844px) - 245px - var(--padl,16px) - var(--padr,16px))/3), calc(var(--ch)*3.2)); margin:0}
+#v-zettel .dz{--chrome:185px; --ch:calc((var(--vmn,390px) - var(--chrome))/3); --cw:min(calc((var(--vmx,844px) - 197px - var(--padl,16px) - var(--padr,16px))/3), calc(var(--ch)*3.2)); margin:0}
 @media (max-height:340px) and (orientation:landscape){ #v-zettel .dz{--chrome:160px} #v-karte,#v-zettel{padding-top:6px; padding-bottom:6px; gap:5px} #v-zettel .seg button{padding:.25em .7em} .zrs .zr{padding:1px 10px; margin-bottom:3px} }
 #v-zettel .seg button{padding:.35em .8em; font-size:.9rem}
-.zright{width:176px; flex:none; display:flex; flex-direction:column; justify-content:space-between}
+.zright{width:128px; flex:none; display:flex; flex-direction:column; justify-content:space-between}
 .zrs .zr{display:flex; justify-content:space-between; align-items:center; background:#fff; border:2.5px solid var(--ink); border-radius:10px; padding:3px 10px; font-weight:800; margin-bottom:5px}
 .zrs .zr.cur{background:var(--sun)}
 .zrs .zr.sum{background:var(--ink); color:#fff}
 .zrs .zr b{font-size:1.1rem}
 #v-zettel .zres{margin:6px 0 0; padding:3px 10px; font-size:.78rem; box-shadow:none; border-width:2px; border-radius:10px}
-#v-zettel .zres .rr{padding:3px 0}
+#v-zettel .zres .rr{padding:3px 0; align-items:center; gap:6px}
+#v-zettel .zres .rr svg{width:22px; height:16px; flex:none}
+#v-zettel .zres .rr span{flex:1; text-align:left; font-weight:800}
+.zrs .zr{padding:3px 8px}
 .zact{display:flex; justify-content:flex-end; padding-right:6px}
 .zact .btn{font-size:.95rem; white-space:nowrap; padding:.6em .8em}
 .zov{position:absolute; inset:8px; z-index:6; background:#fff; border:3px solid var(--ink); border-radius:18px; padding:14px 20px; overflow:auto; box-shadow:4px 4px 0 var(--ink)}
@@ -291,11 +294,14 @@ body.ingame{overscroll-behavior-y:none}
   body[data-print] > *:not(#print-area){display:none !important}
   body[data-print] #print-area{display:block !important}
   *{-webkit-print-color-adjust:economy; print-color-adjust:economy}
-  .ppage{page-break-after:always; break-after:page}
+  .ppage{page-break-after:always; break-after:page; break-inside:avoid}
+  .ppage.three{max-height:268mm; overflow:hidden}
   .ppage:last-child{page-break-after:auto; break-after:auto}
   .ppage .sheet{box-shadow:none; border-radius:10px; margin:0 auto}
-  .ppage.three .sheet.s3{--cw:41.5mm; --ch:21mm; width:100%; font-size:calc(var(--cw)*.085); border-width:1.5px; border-radius:3mm; margin:0 auto}
-  .ppage.three .sheet + .cut{margin:5.5mm 0; border-top:1px dashed #000; text-align:center; height:0; line-height:0; font-size:8pt}
+  .ppage.three .sheet.s3{--cw:41.5mm; --ch:19.5mm; width:100%; break-inside:avoid; font-size:calc(var(--cw)*.085); border-width:1.5px; border-radius:3mm; margin:0 auto}
+  .ppage.one{max-height:268mm; overflow:hidden; display:flex; align-items:center}
+  .ppage.one .sheet.s3{--cw:43mm; --ch:50mm; width:100%; font-size:calc(var(--cw)*.085); border-width:2px; border-radius:4mm; margin:0 auto}
+  .ppage.three .sheet + .cut{margin:4.5mm 0; border-top:1px dashed #000; text-align:center; height:0; line-height:0; font-size:8pt}
   .ppage.three .sheet + .cut::after{content:"✂"; background:#fff; padding:0 8px; position:relative; top:-1px}
   .prules{color:#000; font-family:var(--font); font-size:11pt; max-width:170mm; margin:0 auto}
   .prules h1{font-size:26pt; margin:0 0 4mm}
@@ -367,7 +373,7 @@ body.ingame{overscroll-behavior-y:none}
     </div>
     <p style="font-weight:800; margin:12px 0 0" id="plansum"></p>
     <div class="preview"><div id="planprev"></div></div>
-    <p class="lead">3 Zettel pro Seite, einfach an den Schnittlinien durchschneiden.</p>
+    <p class="lead">Ohne „Beidseitig“: 3 Zettel pro Seite, an den Schnittlinien durchschneiden. Mit „Beidseitig“: pro Person ein Blatt, vorne und hinten bedruckt (2 Spiele), nichts zu schneiden.</p>
   </section>
 
   <!-- ===== Digitaler Zettel ===== -->
@@ -546,7 +552,7 @@ function doPrint(kind, html){
   document.body.setAttribute("data-print", kind);
   setTimeout(() => window.print(), 80);
 }
-window.addEventListener("afterprint", () => { document.body.removeAttribute("data-print"); $("#print-area").innerHTML = ""; });
+// Druckbereich bleibt bestehen (iOS ruft afterprint früh auf und baut die Vorschau sonst um); wird beim nächsten Druck ersetzt.
 
 /* ---------- Schwierigkeit ---------- */
 let sel = store.get("habich_level1", null);
@@ -618,6 +624,10 @@ function roundPoly(pts, k){
   }
   return d + " Z";
 }
+const IC = { get c(){ return `<svg viewBox="0 0 24 16" fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round"><path d="M6.8,4.5 Q9.5,3.3 11.2,3.0 Q12.9,2.8 14.6,3.0 Q16.4,3.2 17.8,3.9 Q19.3,4.5 20.3,5.5 Q21.2,6.5 21.5,7.6 Q21.7,8.8 21.1,10.0 Q20.6,11.1 19.3,12.0 Q18.0,13.0 16.1,13.5 Q14.3,14.0 12.2,14.1 Q10.1,14.1 8.2,13.6 Q6.2,13.1 4.7,12.1 Q3.3,11.2 2.5,9.9 Q1.8,8.6 1.9,7.2 Q2.1,5.8 3.2,4.5 Q4.3,3.3 6.1,2.4 L8.0,1.5"/></svg>`; },
+  get s(){ return `<svg viewBox="-26 -26 52 52" fill="none" stroke="#000" stroke-width="3" stroke-linejoin="round"><path d="${roundPoly(SV, 2.6)}"/></svg>`; },
+  get l(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1"><rect x="2" y="2" width="20" height="20"/><line x1="8.7" y1="2" x2="8.7" y2="22"/><line x1="15.3" y1="2" x2="15.3" y2="22"/><line x1="2" y1="8.7" x2="22" y2="8.7"/><line x1="2" y1="15.3" x2="22" y2="15.3"/><rect x="2" y="2" width="20" height="6.7" stroke-width="2.4"/><rect x="2" y="2" width="6.7" height="20" stroke-width="2.4"/></svg>`; }
+};
 function sheet3HTML(){
   const star = `<svg class="st" viewBox="-26 -26 52 52" fill="none" stroke="#000" stroke-width="2.6" stroke-linejoin="round" aria-hidden="true"><path d="${roundPoly(SV, 2.6)}"/></svg>`;
   const cell = `<div class="c">${star}</div>`;
@@ -640,8 +650,8 @@ function sheet3HTML(){
 }
 function planInfo(){
   const n = Math.max(1, Math.min(12, parseInt($("#nplayers").value, 10) || 1));
-  const dup = $("#duplex").checked, pages = Math.ceil(n / 3);
-  $("#plansum").textContent = n + (n === 1 ? " Zettel" : " Zettel") + " auf " + pages + (dup ? (pages === 1 ? " Blatt (beidseitig, 2 Spiele je Zettel)" : " Blättern (beidseitig, 2 Spiele je Zettel)") : (pages === 1 ? " Seite" : " Seiten"));
+  const dup = $("#duplex").checked, pages = dup ? n : Math.ceil(n / 3);
+  $("#plansum").textContent = n + (n === 1 ? " Zettel" : " Zettel") + " auf " + pages + (dup ? (pages === 1 ? " Blatt (beidseitig, 2 Spiele)" : " Blättern (beidseitig, je Person ein Blatt, 2 Spiele)") : (pages === 1 ? " Seite" : " Seiten"));
   return n;
 }
 function renderPrev(){ $("#planprev").innerHTML = sheet3HTML(); planInfo(); }
@@ -650,10 +660,14 @@ $("#duplex").addEventListener("change", planInfo);
 $("#b-printplan").addEventListener("click", () => {
   const sheets = planInfo(), one = sheet3HTML(), dup = $("#duplex").checked;
   let html = "";
+  if(dup){
+    for(let i=0; i<sheets; i++){ const pg = `<div class="ppage one">${one}</div>`; html += pg + pg; }
+    doPrint("plan", html); return;
+  }
   for(let i=0; i<sheets; i+=3){
     const cnt = Math.min(3, sheets - i);
     const page = `<div class="ppage three">` + Array.from({length:cnt}, () => one).join(`<div class="cut"></div>`) + `</div>`;
-    html += dup ? page + page : page;
+    html += page;
   }
   doPrint("plan", html);
 });
@@ -816,9 +830,9 @@ function zUpdate(){
   const res = $("#zres");
   res.hidden = !z.evald;
   if(z.evald){
-    res.innerHTML = `<div class="rr"><span>Begriffe</span><b>${sc.circles}</b></div>
-      <div class="rr"><span>Sterne</span><b>${sc.stars}</b></div>
-      <div class="rr"><span>Reihen &amp; Spalten</span><b>${sc.lines}</b></div>`;
+    res.innerHTML = `<div class="rr">${IC.c}<span>× 1</span><b>${sc.circles}</b></div>
+      <div class="rr">${IC.s}<span>× 2</span><b>${sc.stars}</b></div>
+      <div class="rr">${IC.l}<span>1·2·3</span><b>${sc.lines}</b></div>`;
   }
   const sum = z.scores.reduce((a,v) => a + (v || 0), 0);
   $("#zrs").innerHTML = z.scores.map((t,i) => `<div class="zr${i===z.round?" cur":""}"><span>Runde ${i+1}</span><b>${t === null ? "–" : t}</b></div>`).join("") + `<div class="zr sum"><span>Gesamt</span><b>${sum}</b></div>`;
