@@ -373,7 +373,7 @@ body.ingame{overscroll-behavior-y:none}
   <section class="view" id="v-plan">
     <div class="topbar"><button class="btn small alt" data-back>‹ Zurück</button></div>
     <h2>Zettel drucken</h2>
-    <p class="lead">Komplett schwarz-weiß, ohne Flächen – spart Tinte. Jede Person bekommt einen Zettel. Mit „Beidseitig“ ist die Rückseite ebenfalls bedruckt, dann reicht ein Zettel für zwei Spiele (im Druckdialog beidseitig einstellen).</p>
+    <p class="lead">Komplett schwarz-weiß, ohne Flächen – spart Tinte. Im Druckdialog bei „Beidseitig“ auch den doppelseitigen Druck einstellen.</p>
     <div class="row" style="margin-bottom:12px">
       <label class="n">Personen <input type="number" class="s" id="nplayers" min="1" max="12" value="4"></label>
       <label class="n"><input type="checkbox" id="duplex" style="width:22px;height:22px"> Beidseitig</label>
@@ -384,7 +384,7 @@ body.ingame{overscroll-behavior-y:none}
     </div>
     <p style="font-weight:800; margin:12px 0 0" id="plansum"></p>
     <div class="preview"><div id="planprev"></div></div>
-    <p class="lead">Ohne „Beidseitig“: 3 Zettel pro Seite, an den Schnittlinien durchschneiden. Mit „Beidseitig“: pro Person ein Blatt, vorne und hinten bedruckt (2 Spiele), nichts zu schneiden.</p>
+    <p class="lead">Jede Person bekommt ein Blatt mit 3 Zetteln (für 3 Runden). Mit „Beidseitig“ sind Vorder- und Rückseite bedruckt, also 6 Zettel pro Person. Alle Zettel sind gleich, es gibt nichts zu schneiden.</p>
   </section>
 
   <!-- ===== Digitaler Zettel ===== -->
@@ -473,7 +473,7 @@ body.ingame{overscroll-behavior-y:none}
 <script>
 "use strict";
 const GAME = "Hab ich";
-const VERSION = "0.11";
+const VERSION = "0.12";
 
 const LEVELS = [
   {id:"k", name:"Kinder", color:"#f4b63c"},
@@ -675,25 +675,18 @@ function sheet3HTML(){
 }
 function planInfo(){
   const n = Math.max(1, Math.min(12, parseInt($("#nplayers").value, 10) || 1));
-  const dup = $("#duplex").checked, pages = dup ? n : Math.ceil(n / 3);
-  $("#plansum").textContent = n + (n === 1 ? " Zettel" : " Zettel") + " auf " + pages + (dup ? (pages === 1 ? " Blatt (beidseitig, 2 Spiele)" : " Blättern (beidseitig, je Person ein Blatt, 2 Spiele)") : (pages === 1 ? " Seite" : " Seiten"));
+  const dup = $("#duplex").checked, pages = dup ? 2 * n : n;
+  $("#plansum").textContent = n + (n === 1 ? " Person" : " Personen") + ": " + n + (n === 1 ? " Blatt" : " Blätter") + (dup ? ", beidseitig (" + pages + " Seiten)" : " (" + pages + (pages === 1 ? " Seite" : " Seiten") + ")") + " mit je " + (dup ? "3 Zetteln pro Seite" : "3 Zetteln");
   return n;
 }
 function renderPrev(){ $("#planprev").innerHTML = sheet3HTML(); planInfo(); }
 $("#nplayers").addEventListener("input", planInfo);
 $("#duplex").addEventListener("change", planInfo);
 $("#b-printplan").addEventListener("click", () => {
-  const sheets = planInfo(), one = sheet3HTML(), dup = $("#duplex").checked;
+  const n = planInfo(), dup = $("#duplex").checked, one = sheet3HTML();
+  const page = `<div class="ppage three">` + [one, one, one].join(`<div class="cut"></div>`) + `</div>`;
   let html = "";
-  if(dup){
-    for(let i=0; i<sheets; i++){ const pg = `<div class="ppage one">${one}</div>`; html += pg + pg; }
-    doPrint("plan", html); return;
-  }
-  for(let i=0; i<sheets; i+=3){
-    const cnt = Math.min(3, sheets - i);
-    const page = `<div class="ppage three">` + Array.from({length:cnt}, () => one).join(`<div class="cut"></div>`) + `</div>`;
-    html += page;
-  }
+  for(let i=0; i<n; i++) html += dup ? page + page : page;
   doPrint("plan", html);
 });
 
