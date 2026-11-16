@@ -451,8 +451,8 @@ body.ingame{overscroll-behavior-y:none}
   <div class="krules" id="krules" hidden>
     <div class="row" style="justify-content:space-between"><b style="font-size:1.2rem">Kurzregeln</b><button class="btn small alt" id="k-rules-x">✕ Schließen</button></div>
     <ol>
-      <li>Frage vorlesen, alle schreiben <b>heimlich 3 Begriffe</b> in freie Felder. Kein Begriff doppelt. Das macht ihr für 3 Fragen.</li>
-      <li>Dann liest reihum jemand einen Begriff vor. Alle anderen sagen nur „habe ich“ oder „nicht“.</li>
+      <li>Frage vorlesen, alle schreiben <b>geheim 3 Begriffe</b> in freie Felder. Kein Begriff doppelt. Das macht ihr für 3 Fragen.</li>
+      <li>Dann liest reihum jemand einen Begriff vor (Runde 1: Startperson zufällig, ab Runde 2 beginnt, wer die wenigsten Punkte hat). Alle anderen sagen nur „habe ich“ oder „nicht“.</li>
       <li><b>Treffer:</b> umkreisen = 1 Punkt. <b>Niemand:</b> durchstreichen. <b>Genau ein anderer:</b> Stern ausmalen = +2.</li>
       <li><b>Reihen</b> (von oben) 1 / 2 / 3 Punkte, <b>Spalten</b> (von links) 1 / 2 / 3 Punkte, wenn alle drei umkreist sind.</li>
       <li>Die Runde endet, sobald jemand keinen Begriff mehr vorlesen kann. 3 Runden sind ein Spiel.</li>
@@ -473,7 +473,7 @@ body.ingame{overscroll-behavior-y:none}
 <script>
 "use strict";
 const GAME = "Hab ich";
-const VERSION = "0.13";
+const VERSION = "0.14";
 
 const LEVELS = [
   {id:"k", name:"Kinder", color:"#f4b63c"},
@@ -988,19 +988,19 @@ window.addEventListener("resize", () => { if(!$("#pad").hidden){ padSize(); padD
 function rulesHTML(print){
   return `${print ? `<h1>${esc(GAME)} …auch!</h1>` : ""}
   <h3>Worum geht’s?</h3>
-  <p>Ihr bekommt 3 Fragen und schreibt zu jeder heimlich 3 Begriffe auf. Danach lest ihr reihum Begriffe vor und findet heraus, was ihr gemeinsam gedacht habt. Es gibt keine falschen Antworten, nur solche, die sonst niemand hatte. Gespielt werden 3 Runden.</p>
+  <p>Ihr bekommt 3 Fragen und schreibt zu jeder geheim 3 Begriffe auf. Danach lest ihr reihum Begriffe vor und findet heraus, was ihr gemeinsam gedacht habt. Es gibt keine falschen Antworten, nur solche, die sonst niemand hatte. Gespielt werden 3 Runden.</p>
   <h3>Das braucht ihr</h3>
-  <ul><li>3 bis 8 Personen, ab ca. 10 Jahren</li><li>Pro Person und Runde einen Spielzettel (ausdrucken oder digital) und einen Stift</li><li>Ein Handy, das die Fragen zeigt (Tisch-Modus), oder jede Person spielt mit dem eigenen Handy in einer Lobby</li></ul>
+  <ul><li>3 bis 7 Personen, ab ca. 10 Jahren (mit mehr Personen gibt es mehr Übereinstimmungen, bis 10 geht es auch noch)</li><li><b>Am Tisch:</b> Pro Person ein ausgedruckter Zettel und ein Stift, dazu ein Handy, das die Fragen zeigt</li><li><b>Digital:</b> Jede Person hat ein eigenes Mobilgerät mit Internetzugang</li></ul>
   <h3>Schreiben: 3 Fragen, 9 Begriffe</h3>
   <ol>
     <li>Eine Frage wird aufgedeckt und vorgelesen.</li>
-    <li>Alle schreiben heimlich 3 passende Begriffe in beliebige freie Felder des 3×3-Rasters. Wohin ein Begriff kommt, entscheidet ihr selbst.</li>
+    <li>Alle schreiben geheim 3 passende Begriffe in beliebige freie Felder des 3×3-Rasters. Wohin ein Begriff kommt, entscheidet ihr selbst.</li>
     <li>Auf dem eigenen Zettel darf kein Begriff doppelt stehen. Merkt euch, was ihr zu welcher Frage geschrieben habt.</li>
     <li>Das wiederholt ihr mit der zweiten und dritten Frage. Danach ist das Raster voll.</li>
   </ol>
   <h3>Vergleichen: reihum vorlesen</h3>
   <ol>
-    <li>Eine Person wird zufällig bestimmt und liest einen ihrer Begriffe vor, den sie noch nicht umkreist oder durchgestrichen hat.</li>
+    <li>In der ersten Runde beginnt eine zufällig bestimmte Person, ab Runde 2 die Person mit den wenigsten Punkten. Sie liest einen ihrer Begriffe vor, den sie noch nicht umkreist oder durchgestrichen hat.</li>
     <li>Alle prüfen, ob sie diesen Begriff auch aufgeschrieben haben (egal zu welcher Frage) und sagen nur „habe ich“ oder „habe ich nicht“.</li>
     <li><b>Umkreisen:</b> Hat mindestens eine andere Person den Begriff, wird er bei allen Beteiligten umkreist. Das bringt je 1 Punkt.</li>
     <li><b>Durchstreichen:</b> Hat niemand ihn, streicht die vorlesende Person ihn durch. Das bringt 0 Punkte.</li>
