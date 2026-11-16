@@ -473,7 +473,7 @@ body.ingame{overscroll-behavior-y:none}
 <script>
 "use strict";
 const GAME = "Hab ich";
-const VERSION = "0.12";
+const VERSION = "0.13";
 
 const LEVELS = [
   {id:"k", name:"Kinder", color:"#f4b63c"},
@@ -562,7 +562,8 @@ function doPrint(kind, html){
   const area = $("#print-area");
   area.innerHTML = html;
   document.body.setAttribute("data-print", kind);
-  setTimeout(() => window.print(), 80);
+  void area.offsetHeight;   // Layout erzwingen, dann direkt im Tipp-Ereignis drucken (ein Timeout lässt Safari den Druck als „automatisch“ sperren)
+  window.print();
 }
 // Druckbereich bleibt bestehen (iOS ruft afterprint früh auf und baut die Vorschau sonst um); wird beim nächsten Druck ersetzt.
 
