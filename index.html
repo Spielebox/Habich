@@ -275,6 +275,8 @@ details.lrules[open] summary{margin-bottom:12px}
 body.ingame #vspacer{height:calc(100vh + 160px)}
 body.ingame{overscroll-behavior-y:none}
 #b-rstart[hidden],#rwait[hidden],#lerr[hidden]{display:none !important}
+.qrbox{background:#fff; padding:14px; border-radius:16px; border:4px solid var(--ink); width:max-content; margin:0 auto 12px; min-width:120px; min-height:60px; color:#111; font-weight:700; text-align:center}
+.qrbox[hidden],#v-pw #pwerr[hidden]{display:none !important}
 .joinrow{display:flex; gap:10px; align-items:stretch}
 .joinrow input{width:34%; text-align:center; font-weight:900; font-size:1.6rem; letter-spacing:.12em; text-transform:uppercase}
 .joinrow .bigbtn{flex:1}
@@ -285,6 +287,8 @@ body.ingame{overscroll-behavior-y:none}
 .plist li .tag{margin-left:auto; font-size:.8rem; opacity:.7; font-weight:700}
 .lbtoast{position:fixed; left:50%; top:14px; transform:translateX(-50%); z-index:99; background:var(--ink); color:var(--bg); padding:10px 16px; border-radius:14px; font-weight:800; max-width:90vw}
 .lbtoast[hidden]{display:none}
+.zbig-w{font-weight:800; opacity:.7; margin:0}
+.zbig-w[hidden],#b-claim[hidden],#b-rclaim[hidden]{display:none !important}
 .zwait{font-weight:800; font-size:.85rem; text-align:right; opacity:.75; margin-top:6px}
 .zwait[hidden]{display:none}
 .swhint{position:fixed; left:50%; bottom:calc(14px + env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:70; background:rgba(28,26,23,.9); color:#fff; padding:8px 16px; border-radius:999px; font-weight:700; font-size:.9rem; pointer-events:none}
@@ -382,15 +386,26 @@ body.ingame{overscroll-behavior-y:none}
   </section>
 
   <!-- ===== Lobby ===== -->
+  <section class="view" id="v-pw">
+    <div class="topbar"><button class="btn small alt" data-back>‹ Zurück</button></div>
+    <h2>Passwort</h2>
+    <p class="lvnote">Zum Spielen am Tisch und zum Anlegen eines Raums brauchst du das Passwort. Mitspielen in einem Raum geht ohne.</p>
+    <input type="password" id="pwin" placeholder="Passwort" autocomplete="current-password" style="width:100%">
+    <button class="btn red" id="b-pwok" style="width:100%">Weiter</button>
+    <p class="lvnote" id="pwerr" hidden></p>
+  </section>
+
   <section class="view" id="v-raum">
     <div class="topbar"><button class="btn small alt" id="b-rleave">‹ Verlassen</button></div>
     <h2>Raum</h2>
     <div class="rcode" id="rcode">----</div>
-    <div class="row"><button class="btn small alt" id="b-rshare">Einladung teilen</button></div>
+    <div class="row"><button class="btn small alt" id="b-rqr">QR-Code anzeigen</button><button class="btn small alt" id="b-rshare">Link teilen</button></div>
+    <div class="qrbox" id="qrbox" hidden></div>
     <h3 class="sec" id="rcount">Spieler</h3>
     <ul class="plist" id="rlist"></ul>
     <p class="lvnote" id="rinfo"></p>
     <button class="bigbtn b" id="b-rstart" hidden><b>Spiel starten</b><span id="rstart-s">3 Runden, 9 Fragen</span></button>
+    <button class="btn small alt" id="b-rclaim" hidden>Host übernehmen (Host ist offline)</button>
     <p class="lvnote" id="rwait" hidden>Warte auf den Host …</p>
   </section>
 
@@ -409,7 +424,6 @@ body.ingame{overscroll-behavior-y:none}
       <div class="joinrow"><input type="text" id="lcode" maxlength="4" placeholder="CODE" autocapitalize="characters" autocomplete="off" spellcheck="false"><button class="bigbtn" id="b-ljoin"><b>Beitreten</b><span>Code vom Host eingeben</span></button></div>
     </div>
     <p class="lvnote" id="lerr" hidden></p>
-    <button class="btn small alt" data-go="zettel">Digitalen Zettel ausprobieren (Test)</button>
     <details class="lrules"><summary>📖 Spielregeln lesen</summary><div class="rules" id="rules-lobby"></div></details>
   </section>
 
@@ -450,10 +464,11 @@ body.ingame{overscroll-behavior-y:none}
         <div><div class="zrs" id="zrs"></div><div class="zres" id="zres" hidden></div></div>
         <div class="zact"><button class="btn red" id="b-zeval">Auswerten</button><button class="btn red" id="b-znext" hidden>Nächste Runde →</button></div>
         <div class="zwait" id="zwait" hidden></div>
+        <button class="btn small alt" id="b-claim" hidden>Host übernehmen</button>
       </div>
     </div>
     <div class="zov" id="zov" hidden></div>
-    <div class="zbig" id="zbig" hidden><div class="zbig-in"><small id="zbig-n"></small><b id="zbig-t"></b><span id="zbig-h">Tippen zum Schreiben</span><button class="btn small alt" id="zbig-swap" type="button">↻ Andere Frage</button></div></div>
+    <div class="zbig" id="zbig" hidden><div class="zbig-in"><small id="zbig-n"></small><b id="zbig-t"></b><span id="zbig-h">Tippen zum Schreiben</span><button class="btn small alt" id="zbig-swap" type="button">↻ Andere Frage</button><p class="zbig-w" id="zbig-w" hidden>Warte auf den Host …</p></div></div>
   </section>
   <div class="padov" id="pad" hidden>
     <div class="padbox">
@@ -519,7 +534,7 @@ body.ingame{overscroll-behavior-y:none}
 <script>
 "use strict";
 const GAME = "Hab ich";
-const VERSION = "0.27";
+const VERSION = "0.29";
 
 const LEVELS = [
   {id:"k", name:"Kinder", color:"#f4b63c"},
@@ -739,6 +754,39 @@ $("#b-printplan").addEventListener("click", () => {
 });
 
 
+/* ---------- Passwort ---------- */
+const httpBase = () => LOBBY_URL.replace(/^wss:/, "https:").replace(/^ws:/, "http:").replace(/\/$/, "");
+const pwGet = () => { try{ return localStorage.getItem("habich_pw") || ""; }catch(e){ return ""; } };
+let pwNext = null;
+async function pwCheck(pw){
+  try{
+    const r = await fetch(httpBase() + "/auth", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({pw})});
+    return !!(await r.json()).ok;
+  }catch(e){ return null; }   // null = Server nicht erreichbar
+}
+async function needPw(cb){
+  const pw = pwGet();
+  if(pw && LOBBY_URL){ const ok = await pwCheck(pw); if(ok){ cb(pw); return; } }
+  pwNext = cb; $("#pwin").value = ""; $("#pwerr").hidden = true; show("pw"); setTimeout(() => $("#pwin").focus(), 50);
+}
+async function pwSubmit(){
+  const pw = $("#pwin").value, e = $("#pwerr");
+  if(!pw) return;
+  $("#b-pwok").disabled = true;
+  const ok = await pwCheck(pw);
+  $("#b-pwok").disabled = false;
+  if(ok === null){ e.textContent = "Der Server ist nicht erreichbar."; e.hidden = false; return; }
+  if(!ok){ e.textContent = "Das Passwort stimmt nicht."; e.hidden = false; return; }
+  try{ localStorage.setItem("habich_pw", pw); }catch(x){}
+  const cb = pwNext; pwNext = null; back(); if(cb) cb(pw);
+}
+$("#b-pwok").addEventListener("click", pwSubmit);
+$("#pwin").addEventListener("keydown", e => { if(e.key === "Enter") pwSubmit(); });
+document.addEventListener("click", e => {
+  const g = e.target.closest('[data-go="tisch"]');
+  if(g){ e.stopImmediatePropagation(); needPw(() => show("tisch")); }
+}, true);
+
 /* ---------- Lobby (Mehrspieler) ---------- */
 const lbParam = new URLSearchParams(location.search);
 if(lbParam.get("server")){ try{ localStorage.setItem("habich_server", lbParam.get("server")); }catch(e){} }
@@ -760,35 +808,52 @@ function lbConnect(opt){
     try{ ws = new WebSocket(LOBBY_URL.replace(/\/$/, "") + "/ws/" + opt.code); }catch(e){ reject("Server nicht erreichbar."); return; }
     LB.ws = ws; LB.code = opt.code;
     const timer = setTimeout(() => { if(!opened){ try{ ws.close(); }catch(e){} reject("Der Server antwortet nicht."); } }, 9000);
-    ws.onopen = () => { opened = true; ws.send(JSON.stringify({t:"join", name:opt.name, pid:opt.pid, create:!!opt.create})); };
+    ws.onopen = () => { opened = true; ws.send(JSON.stringify({t:"join", name:opt.name, pid:opt.pid, create:!!opt.create, pw:opt.pw})); };
     ws.onmessage = ev => {
       let m; try{ m = JSON.parse(ev.data); }catch(e){ return; }
-      if(m.t === "hello"){ clearTimeout(timer); LB.me = m.you; LB.active = true; LB.retry = 0; lbSave(opt.code, m.you); resolve(); return; }
-      if(m.t === "err"){ if(m.fatal){ clearTimeout(timer); reject(m.msg); } else { lbToast(m.msg); } return; }
+      if(m.t === "hello"){ clearTimeout(timer); LB.me = m.you; LB.active = true; LB.retry = 0; lbSave(opt.code, m.you); $("#lbtoast").hidden = true; resolve(); return; }
+      if(m.t === "err"){ if(m.fatal){ clearTimeout(timer); LB.fatal = true; reject(m.msg); } else { lbToast(m.msg); } return; }
       if(m.t === "state"){ LB.s = m.s; LB.me = m.you; if(LB.active) lbOnState(); }
     };
-    ws.onclose = () => { clearTimeout(timer); if(!opened){ reject("Server nicht erreichbar."); return; } if(LB.active && !LB.leaving) lbReconnect(); };
+    ws.onclose = () => { clearTimeout(timer); if(!opened){ reject("Server nicht erreichbar."); return; } if(LB.ws === ws && LB.active && !LB.leaving){ lbToast("Verbindung weg – verbinde neu …"); lbReconnect(true); } };
     ws.onerror = () => {};
   });
 }
 function lbToast(msg){ const e = $("#lbtoast"); e.textContent = msg; e.hidden = false; setTimeout(() => { e.hidden = true; }, 3500); }
-function lbReconnect(){
-  if(LB.retry >= 6){ lbToast("Verbindung verloren."); lbLeave(false); return; }
-  LB.retry++; lbToast("Verbindung weg – verbinde neu …");
-  setTimeout(() => { if(!LB.active || LB.leaving) return;
-    lbConnect({code:LB.code, pid:LB.me}).catch(() => { if(LB.active && !LB.leaving) lbReconnect(); }); }, 1500 * LB.retry);
+let lbRcTimer = null;
+function lbReconnect(now){
+  if(!LB.active || LB.leaving) return;
+  if(LB.ws && LB.ws.readyState <= 1 && !now) return;
+  if(LB.retry >= 40){ lbToast("Verbindung verloren."); lbLeave(false); return; }
+  clearTimeout(lbRcTimer);
+  lbRcTimer = setTimeout(() => {
+    if(!LB.active || LB.leaving) return;
+    LB.retry++; LB.fatal = false;
+    lbConnect({code:LB.code, pid:LB.me}).then(() => { LB.retry = 0; }).catch(msg => {
+      if(LB.fatal){ lbToast(msg || "Raum nicht mehr da."); lbLeave(false); return; }
+      lbReconnect(true);
+    });
+  }, now ? 0 : Math.min(4000, 800 * (LB.retry + 1)));
 }
+document.addEventListener("visibilitychange", () => { if(!document.hidden && LB.active && (!LB.ws || LB.ws.readyState !== 1)) lbReconnect(true); });
+window.addEventListener("pageshow", () => { if(LB.active && (!LB.ws || LB.ws.readyState !== 1)) lbReconnect(true); });
+window.addEventListener("online", () => { if(LB.active) lbReconnect(true); });
 async function lbStart(create){
   const name = $("#lname").value.trim(), code = ($("#lcode").value || "").trim().toUpperCase();
   lbErr("");
   if(!name){ lbErr("Bitte gib zuerst deinen Namen ein."); $("#lname").focus(); return; }
   try{ localStorage.setItem("habich_name", name); }catch(e){}
   if(!create && code.length !== 4){ lbErr("Der Code hat 4 Zeichen."); $("#lcode").focus(); return; }
+  let pw = "";
+  if(create){
+    pw = pwGet();
+    if(!pw || (LOBBY_URL && (await pwCheck(pw)) !== true)){ needPw(() => lbStart(true)); return; }
+  }
   $("#b-lnew").disabled = $("#b-ljoin").disabled = true;
   try{
     if(create){
       for(let i=0; i<6; i++){
-        try{ await lbConnect({code:lbCode(), name, create:true}); break; }
+        try{ await lbConnect({code:lbCode(), name, create:true, pw}); break; }
         catch(e){ if(e !== "exists" || i === 5) throw e; }
       }
     } else await lbConnect({code, name});
@@ -815,6 +880,7 @@ function lbEnterRaum(){
   $("#rlist").innerHTML = s.players.map(p => `<li class="${p.on ? "" : "off"}"><span>${esc(p.name)}</span>${p.id === s.host ? '<span class="tag">👑 Host</span>' : (p.id === LB.me ? '<span class="tag">du</span>' : "")}</li>`).join("");
   const host = lbIsHost(), n = s.players.filter(p => p.on).length;
   $("#rinfo").textContent = n < 3 ? "Ab 3 Personen macht es erst richtig Spaß (empfohlen: 3 bis 7, bis 12 sind möglich)." : "Gleich geht's los. Empfohlen sind 3 bis 7 Personen, bis 12 sind möglich.";
+  const hp = s.players.find(p => p.id === s.host); $("#b-rclaim").hidden = !(hp && !hp.on && !host);
   $("#b-rstart").hidden = !host; $("#b-rstart").disabled = n < 2; $("#rwait").hidden = host;
 }
 function lbEnterGame(){
@@ -848,6 +914,22 @@ $("#b-rshare").addEventListener("click", async () => {
   const text = "Komm in meinen Raum bei „Hab ich …auch!“ – Code " + LB.s.code;
   try{ if(navigator.share){ await navigator.share({title:"Hab ich …auch!", text, url}); return; } }catch(e){ return; }
   try{ await navigator.clipboard.writeText(text + "\n" + url); lbToast("Link kopiert"); }catch(e){ prompt("Link zum Teilen:", url); }
+});
+$("#b-rclaim").addEventListener("click", () => lbSend({t:"claim"}));
+$("#b-claim").addEventListener("click", () => lbSend({t:"claim"}));
+let qrLoaded = null;
+function qrLib(){
+  if(window.QRCode) return Promise.resolve();
+  return qrLoaded || (qrLoaded = new Promise((res, rej) => { const sc = document.createElement("script"); sc.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"; sc.onload = res; sc.onerror = () => { qrLoaded = null; rej(); }; document.head.appendChild(sc); }));
+}
+$("#b-rqr").addEventListener("click", async () => {
+  const box = $("#qrbox");
+  if(!box.hidden){ box.hidden = true; $("#b-rqr").textContent = "QR-Code anzeigen"; return; }
+  box.hidden = false; box.textContent = "Lade …"; $("#b-rqr").textContent = "QR-Code ausblenden";
+  try{
+    await qrLib(); box.innerHTML = "";
+    new QRCode(box, {text: location.origin + location.pathname + "?raum=" + LB.s.code, width:220, height:220, correctLevel: QRCode.CorrectLevel.M});
+  }catch(e){ box.textContent = "QR-Code nicht verfügbar (kein Internet?)"; }
 });
 $("#b-rstart").addEventListener("click", () => {
   const ids = freshIds().slice(0, 9);
@@ -1032,10 +1114,19 @@ function zUpdate(){
   const qb = $("#z-qnext");
   qb.hidden = z.mode === "m" || z.evald;
   qb.textContent = LB.active ? "Fertig ✓" : (z.qi < 2 ? "Weiter ›" : "Vergleichen ›");
-  qb.disabled = filled < need || (LB.active && LB.sent === z.round * 3 + z.qi);
+  qb.disabled = filled < need || (LB.active && (LB.sent === z.round * 3 + z.qi || !LB.s.open));
   $("#zqn").textContent += " · Wörter " + Math.min(filled, need) + "/" + need;
   const key = z.round * 3 + z.qi;
-  if(z.seen !== key && $("#v-zettel").classList.contains("active") && !z.evald && z.mode === "w") showBig(key);
+  const bigEl = $("#zbig");
+  if(LB.active && LB.s.phase === "write"){
+    const isH = lbIsHost(), op = LB.s.open;
+    if(z.seen !== key){ if(op) z.seen = key; else if($("#v-zettel").classList.contains("active")) showBig(key); }
+    if(!bigEl.hidden && !bigEl.classList.contains("go")){
+      $("#zbig-t").textContent = qText();
+      $("#zbig-swap").hidden = !(isH && !op); $("#zbig-w").hidden = isH || op; $("#zbig-h").hidden = !isH;
+      if(op && !isH) bigDismiss();
+    }
+  } else if(!LB.active && z.seen !== key && $("#v-zettel").classList.contains("active") && !z.evald && z.mode === "w") showBig(key);
   const res = $("#zres");
   res.hidden = !z.evald;
   if(z.evald){
@@ -1056,6 +1147,8 @@ function zUpdate(){
     else if(LB.s.phase === "compare" && z.evald) wt = ps.filter(p => p.ev).length + "/" + ps.length + " ausgewertet";
   }
   zw.textContent = wt; zw.hidden = !wt;
+  const hp2 = LB.active && LB.s.players.find(p => p.id === LB.s.host);
+  $("#b-claim").hidden = !(hp2 && !hp2.on && !lbIsHost());
   zSave();
 }
 function zBuild(){
@@ -1122,7 +1215,7 @@ $("#z-stand").addEventListener("click", zStand);
 $("#z-rules").addEventListener("click", () => zOv(`<h3 style="margin:0 0 6px">Kurzregeln</h3>` + $("#krules ol").outerHTML));
 $("#z-exit").addEventListener("click", () => { if(LB.active){ if(confirm("Spiel verlassen? Du kommst nicht wieder hinein.")) lbLeave(true); return; } if(confirm("Zurück zum Menü?")){ hideHint(); $("#zov").hidden = true; back(); } });
 function showBig(key){
-  z.seen = key; if(LB.active){ const ti = textId(qText()); if(ti >= 0) markUsed(ti); $("#zbig-swap").hidden = !(lbIsHost() && !LB.s.players.some(p => p.ready)); } else { markUsed(z.qs[z.qi]); $("#zbig-swap").hidden = false; }
+  z.seen = key; if(LB.active){ const ti = textId(qText()); if(ti >= 0 && lbIsHost()) markUsed(ti); $("#zbig-swap").hidden = !lbIsHost(); $("#zbig-w").hidden = lbIsHost(); $("#zbig-h").hidden = !lbIsHost(); } else { markUsed(z.qs[z.qi]); $("#zbig-swap").hidden = false; $("#zbig-w").hidden = true; $("#zbig-h").hidden = false; }
   $("#zbig-n").textContent = "Runde " + (z.round + 1) + " von 3 · Frage " + (z.qi + 1) + " von 3";
   $("#zbig-t").textContent = qText(); $("#zbig-t").style.transform = "";
   const o = $("#zbig"); o.classList.remove("fade", "go"); o.hidden = false;
@@ -1132,7 +1225,7 @@ $("#zbig-swap").addEventListener("click", e => {
   if(LB.active){
     const used9 = LB.s.q ? [LB.s.q] : [];
     const c = freshIds().map(i => ALL[i].t).filter(t => !LB.hostQs.includes(t) && !used9.includes(t))[0];
-    if(c){ LB.hostQs[LB.s.round * 3 + LB.s.qi] = c; lbSend({t:"swap", text:c}); }
+    if(c){ LB.hostQs[LB.s.round * 3 + LB.s.qi] = c; lbSend({t:"swap", text:c}); markUsed(textId(c)); }
     return;
   }
   const cand = freshIds().filter(i => !z.qs.includes(i));
@@ -1141,6 +1234,10 @@ $("#zbig-swap").addEventListener("click", e => {
   $("#zbig-t").textContent = ALL[z.qs[z.qi]].t; zSave(); zUpdate();
 });
 $("#zbig").addEventListener("click", () => {
+  if(LB.active){ if(!lbIsHost()) return; lbSend({t:"go"}); }
+  bigDismiss();
+});
+function bigDismiss(){
   const o = $("#zbig"), t = $("#zbig-t"); if(o.classList.contains("go")) return;
   o.classList.add("go");
   const portrait = matchMedia("(orientation:portrait)").matches;
@@ -1151,7 +1248,7 @@ $("#zbig").addEventListener("click", () => {
   }
   setTimeout(() => o.classList.add("fade"), 250);
   setTimeout(() => { o.hidden = true; o.classList.remove("fade", "go"); }, 650);
-});
+}
 function zEnter(){ zUpdate(); rotHint(); }
 
 const pad = {i:-1, strokes:[], cur:null, w:0, h:0, d:1};

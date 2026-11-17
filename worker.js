@@ -19,6 +19,7 @@ export class RoomLogic {
     this.players = [];         // {id, name, on, ready, ev, sc:[null,null,null], left}
     this.hostId = null;
     this.seq = 0;
+    this.open = false;         // false: Frage wird nur gezeigt, der Host darf sie noch tauschen
   }
 
   newId() { return "p" + (++this.seq) + Math.random().toString(36).slice(2, 8); }
@@ -50,7 +51,7 @@ export class RoomLogic {
 
   fixHost() {
     const h = this.find(this.hostId);
-    if (h && h.on) return;
+    if (h) return;   // Host bleibt Host, auch wenn er kurz weg ist (Handy gesperrt o. ä.)
     const n = this.online[0] || this.live[0];
     this.hostId = n ? n.id : null;
   }
@@ -69,6 +70,7 @@ export class RoomLogic {
     const on = this.online;
     if (!on.length || !on.every(p => p.ready)) return;
     this.live.forEach(p => { p.ready = false; });
+    this.open = false;
     this.qi++;
     if (this.qi >= 3) { this.qi = 2; this.phase = "compare"; }
   }
@@ -83,17 +85,24 @@ export class RoomLogic {
         if (this.online.length < MIN_START) return "Es braucht mindestens " + MIN_START + " Personen.";
         const qs = Array.isArray(m.qs) ? m.qs.map(x => String(x || "").trim().slice(0, 120)) : [];
         if (qs.length !== 9 || qs.some(x => !x)) return "Ungültige Fragen.";
-        this.qs = qs; this.phase = "write"; this.round = 0; this.qi = 0;
+        this.qs = qs; this.phase = "write"; this.round = 0; this.qi = 0; this.open = false;
         this.players = this.players.filter(x => !x.left);
         this.players.forEach(x => { x.ready = false; x.ev = false; x.sc = [null, null, null]; });
         return null;
       }
+      case "claim":
+        if (this.find(this.hostId) && !this.find(this.hostId).on) this.hostId = id;
+        return null;
+      case "go":
+        if (!host) return "Nur der Host gibt die Frage frei.";
+        if (this.phase === "write") this.open = true;
+        return null;
       case "ready":
-        if (this.phase !== "write") return null;
+        if (this.phase !== "write" || !this.open) return null;
         p.ready = true; this.advance(); return null;
       case "swap": {
         if (!host || this.phase !== "write") return "Nicht möglich.";
-        if (this.live.some(x => x.ready)) return "Es haben schon Personen geschrieben.";
+        if (this.open) return "Die Frage ist schon freigegeben.";
         const t = String(m.text || "").trim().slice(0, 120); if (!t) return "Ungültig.";
         this.qs[this.round * 3 + this.qi] = t; return null;
       }
@@ -111,7 +120,7 @@ export class RoomLogic {
         this.round++;
         this.live.forEach(x => { x.ready = false; x.ev = false; });
         if (this.round >= 3) { this.round = 2; this.phase = "final"; }
-        else { this.phase = "write"; this.qi = 0; }
+        else { this.phase = "write"; this.qi = 0; this.open = false; }
         return null;
       case "restart":
         if (!host) return "Nur der Host kann neu starten.";
@@ -127,7 +136,7 @@ export class RoomLogic {
   view() {
     const cur = this.round * 3;
     return {
-      code: this.code, phase: this.phase, round: this.round, qi: this.qi, host: this.hostId,
+      code: this.code, phase: this.phase, open: this.open, round: this.round, qi: this.qi, host: this.hostId,
       q: this.phase === "write" ? this.qs[cur + this.qi] : null,
       rq: (this.phase === "compare" || this.phase === "final") ? this.qs.slice(cur, cur + 3) : null,
       players: this.live.map(p => ({ id: p.id, name: p.name, on: p.on, ready: p.ready, ev: p.ev, sc: p.sc })),
@@ -140,9 +149,19 @@ export class RoomLogic {
 // ------------------------------------------------------------------
 export class Room {
   constructor(state, env) {
+    this.state = state;
+    this.env = env || {};
     this.logic = new RoomLogic();
     this.socks = new Map();   // WebSocket -> Spieler-ID
+    // Spielstand überlebt, wenn Cloudflare das Objekt zwischendurch aus dem Speicher nimmt
+    state.blockConcurrencyWhile(async () => {
+      try {
+        const saved = await state.storage.get("logic");
+        if (saved) { Object.assign(this.logic, saved); this.logic.players.forEach(p => { p.on = false; }); }
+      } catch (e) { /* neu starten */ }
+    });
   }
+  save() { try { this.state.storage.put("logic", JSON.parse(JSON.stringify(this.logic))); } catch (e) {} }
 
   async fetch(request) {
     if (request.headers.get("Upgrade") !== "websocket") return new Response("Erwartet WebSocket", { status: 426 });
@@ -160,6 +179,7 @@ export class Room {
   broadcast() {
     const s = this.logic.view();
     for (const [ws, id] of this.socks) this.send(ws, { t: "state", you: id, s });
+    this.save();
   }
 
   onMessage(ws, ev, code) {
@@ -168,6 +188,10 @@ export class Room {
     if (m.t === "ping") return this.send(ws, { t: "pong" });
     if (m.t === "join") {
       if (this.socks.has(ws)) return;
+      if (m.create && (!this.env.PASSWORT || String(m.pw || "") !== String(this.env.PASSWORT))) {
+        this.send(ws, { t: "err", msg: this.env.PASSWORT ? "Das Passwort stimmt nicht." : "Auf dem Server ist noch kein Passwort eingerichtet.", fatal: true });
+        try { ws.close(1000, "x"); } catch (e) {} return;
+      }
       const r = this.logic.join({ name: m.name, pid: m.pid, create: !!m.create, code });
       if (r.err) { this.send(ws, { t: "err", msg: r.err, fatal: true }); try { ws.close(1000, "x"); } catch (e) {} return; }
       // alte Verbindung derselben Person ersetzen
@@ -197,6 +221,13 @@ export class Room {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const cors = { "access-control-allow-origin": "*", "access-control-allow-headers": "content-type", "access-control-allow-methods": "POST, OPTIONS" };
+    if (url.pathname === "/auth") {
+      if (request.method === "OPTIONS") return new Response(null, { headers: cors });
+      let ok = false;
+      try { const b = await request.json(); ok = !!env.PASSWORT && String(b.pw || "") === String(env.PASSWORT); } catch (e) {}
+      return new Response(JSON.stringify({ ok }), { headers: { ...cors, "content-type": "application/json" } });
+    }
     const m = url.pathname.match(/^\/ws\/([A-Za-z0-9]{4})$/);
     if (!m) return new Response("Hab ich …auch! Lobby läuft.", { headers: { "content-type": "text/plain; charset=utf-8" } });
     const code = m[1].toUpperCase();
