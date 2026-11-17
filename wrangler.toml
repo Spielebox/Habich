@@ -1,4 +1,4 @@
-name = "habich-lobby"
+name = "habich"
 main = "worker.js"
 compatibility_date = "2025-01-01"
 
