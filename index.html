@@ -277,6 +277,7 @@ body.ingame{overscroll-behavior-y:none}
 #b-rstart[hidden],#rwait[hidden],#lerr[hidden]{display:none !important}
 .qrbox{background:#fff; padding:14px; border-radius:16px; border:4px solid var(--ink); width:max-content; margin:0 auto 12px; min-width:120px; min-height:60px; color:#111; font-weight:700; text-align:center}
 .qrbox[hidden],#v-pw #pwerr[hidden]{display:none !important}
+#v-pw.boot [data-back]{display:none}
 .joinrow{display:flex; gap:10px; align-items:stretch}
 .joinrow input{width:34%; text-align:center; font-weight:900; font-size:1.6rem; letter-spacing:.12em; text-transform:uppercase}
 .joinrow .bigbtn{flex:1}
@@ -534,7 +535,7 @@ body.ingame{overscroll-behavior-y:none}
 <script>
 "use strict";
 const GAME = "Hab ich";
-const VERSION = "0.29";
+const VERSION = "0.30";
 
 const LEVELS = [
   {id:"k", name:"Kinder", color:"#f4b63c"},
@@ -757,7 +758,7 @@ $("#b-printplan").addEventListener("click", () => {
 /* ---------- Passwort ---------- */
 const httpBase = () => LOBBY_URL.replace(/^wss:/, "https:").replace(/^ws:/, "http:").replace(/\/$/, "");
 const pwGet = () => { try{ return localStorage.getItem("habich_pw") || ""; }catch(e){ return ""; } };
-let pwNext = null;
+let pwNext = null, pwBoot = false;
 async function pwCheck(pw){
   try{
     const r = await fetch(httpBase() + "/auth", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({pw})});
@@ -778,7 +779,7 @@ async function pwSubmit(){
   if(ok === null){ e.textContent = "Der Server ist nicht erreichbar."; e.hidden = false; return; }
   if(!ok){ e.textContent = "Das Passwort stimmt nicht."; e.hidden = false; return; }
   try{ localStorage.setItem("habich_pw", pw); }catch(x){}
-  const cb = pwNext; pwNext = null; back(); if(cb) cb(pw);
+  const cb = pwNext; pwNext = null; if(!pwBoot) back(); pwBoot = false; $("#v-pw").classList.remove("boot"); if(cb) cb(pw);
 }
 $("#b-pwok").addEventListener("click", pwSubmit);
 $("#pwin").addEventListener("keydown", e => { if(e.key === "Enter") pwSubmit(); });
@@ -950,6 +951,16 @@ setInterval(() => { if(LB.active) lbSend({t:"ping"}); }, 25000);
     const saved = JSON.parse(sessionStorage.getItem("habich_room") || "null");
     if(saved && on) lbConnect({code:saved.code, pid:saved.pid}).then(() => { LB.leaving = false; if(LB.s) lbOnState(); }).catch(() => lbForget());
   }catch(e){}
+})();
+
+/* Ganzes Spiel einmalig absichern (Einladungslink ?raum= darf ohne Passwort beitreten) */
+(function pwBootCheck(){
+  if(!LOBBY_URL || lbParam.get("raum")) return;
+  const toStart = () => { hist.length = 0; hist.push("start"); show("start", false); };
+  const ask = () => { pwBoot = true; pwNext = toStart; $("#v-pw").classList.add("boot"); $("#pwin").value = ""; $("#pwerr").hidden = true; show("pw", false); };
+  const pw = pwGet();
+  if(!pw){ ask(); return; }
+  pwCheck(pw).then(ok => { if(ok === false) ask(); });
 })();
 
 /* ---------- Digitaler Zettel ---------- */
