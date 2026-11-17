@@ -519,7 +519,7 @@ body.ingame{overscroll-behavior-y:none}
 <script>
 "use strict";
 const GAME = "Hab ich";
-const VERSION = "0.26";
+const VERSION = "0.27";
 
 const LEVELS = [
   {id:"k", name:"Kinder", color:"#f4b63c"},
@@ -742,7 +742,7 @@ $("#b-printplan").addEventListener("click", () => {
 /* ---------- Lobby (Mehrspieler) ---------- */
 const lbParam = new URLSearchParams(location.search);
 if(lbParam.get("server")){ try{ localStorage.setItem("habich_server", lbParam.get("server")); }catch(e){} }
-const LOBBY_URL = (() => { try{ return localStorage.getItem("habich_server") || ""; }catch(e){ return ""; } })() || "";   // z. B. wss://habich-lobby.DEINNAME.workers.dev
+const LOBBY_URL = (() => { try{ return localStorage.getItem("habich_server") || ""; }catch(e){ return ""; } })() || "wss://habich.spam-lama.workers.dev";
 const LB = {active:false, ws:null, me:"", s:null, sent:null, backup:null, ph:null, hostQs:[], leaving:false, retry:0};
 const lbLetters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const lbCode = () => Array.from({length:4}, () => lbLetters[(Math.random() * lbLetters.length) | 0]).join("");
