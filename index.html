@@ -278,6 +278,7 @@ body.ingame{overscroll-behavior-y:none}
 .qrbox{background:#fff; padding:14px; border-radius:16px; border:4px solid var(--ink); width:max-content; margin:0 auto 12px; min-width:120px; min-height:60px; color:#111; font-weight:700; text-align:center}
 .qrbox[hidden],#v-pw #pwerr[hidden]{display:none !important}
 #v-pw.boot [data-back]{display:none}
+#v-pw:not(.boot) .boothide{display:none}
 .joinrow{display:flex; gap:10px; align-items:stretch}
 .joinrow input{width:34%; text-align:center; font-weight:900; font-size:1.6rem; letter-spacing:.12em; text-transform:uppercase}
 .joinrow .bigbtn{flex:1}
@@ -390,10 +391,11 @@ body.ingame{overscroll-behavior-y:none}
   <section class="view" id="v-pw">
     <div class="topbar"><button class="btn small alt" data-back>‹ Zurück</button></div>
     <h2>Passwort</h2>
-    <p class="lvnote">Zum Spielen am Tisch und zum Anlegen eines Raums brauchst du das Passwort. Mitspielen in einem Raum geht ohne.</p>
+    <p class="lvnote" id="pwtext">Bitte gib das Passwort ein.</p>
     <input type="password" id="pwin" placeholder="Passwort" autocomplete="current-password" style="width:100%">
     <button class="btn red" id="b-pwok" style="width:100%">Weiter</button>
     <p class="lvnote" id="pwerr" hidden></p>
+    <button class="btn alt boothide" id="b-pwjoin" style="width:100%">Nur beitreten (Raumcode eingeben)</button>
   </section>
 
   <section class="view" id="v-raum">
@@ -535,7 +537,7 @@ body.ingame{overscroll-behavior-y:none}
 <script>
 "use strict";
 const GAME = "Hab ich";
-const VERSION = "0.30";
+const VERSION = "0.33";
 
 const LEVELS = [
   {id:"k", name:"Kinder", color:"#f4b63c"},
@@ -758,29 +760,32 @@ $("#b-printplan").addEventListener("click", () => {
 /* ---------- Passwort ---------- */
 const httpBase = () => LOBBY_URL.replace(/^wss:/, "https:").replace(/^ws:/, "http:").replace(/\/$/, "");
 const pwGet = () => { try{ return localStorage.getItem("habich_pw") || ""; }catch(e){ return ""; } };
-let pwNext = null, pwBoot = false;
+let pwNext = null, pwBoot = false, pwLock = "";
 async function pwCheck(pw){
   try{
     const r = await fetch(httpBase() + "/auth", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({pw})});
-    return !!(await r.json()).ok;
+    const j = await r.json(); pwLock = j.locked ? (j.msg || "Zu viele Versuche.") : ""; return j.ok ? (j.role || "gast") : false;   // "host" | "gast" | false
   }catch(e){ return null; }   // null = Server nicht erreichbar
 }
-async function needPw(cb){
+let pwNeedHost = false;
+async function needPw(cb){          // verlangt das Host-Passwort (Am Tisch, Raum anlegen)
   const pw = pwGet();
-  if(pw && LOBBY_URL){ const ok = await pwCheck(pw); if(ok){ cb(pw); return; } }
-  pwNext = cb; $("#pwin").value = ""; $("#pwerr").hidden = true; show("pw"); setTimeout(() => $("#pwin").focus(), 50);
+  if(pw && LOBBY_URL){ const role = await pwCheck(pw); if(role === "host"){ cb(pw); return; } }
+  pwNeedHost = true; pwNext = cb; $("#pwtext").textContent = "Zum Spielen am Tisch und zum Anlegen eines Raums brauchst du das Passwort. Mitspielen in einem Raum geht ohne."; $("#pwin").value = ""; $("#pwerr").hidden = true; show("pw"); setTimeout(() => $("#pwin").focus(), 50);
 }
 async function pwSubmit(){
   const pw = $("#pwin").value, e = $("#pwerr");
   if(!pw) return;
   $("#b-pwok").disabled = true;
-  const ok = await pwCheck(pw);
+  const role = await pwCheck(pw);
   $("#b-pwok").disabled = false;
-  if(ok === null){ e.textContent = "Der Server ist nicht erreichbar."; e.hidden = false; return; }
-  if(!ok){ e.textContent = "Das Passwort stimmt nicht."; e.hidden = false; return; }
+  if(role === null){ e.textContent = "Der Server ist nicht erreichbar."; e.hidden = false; return; }
+  if(!role){ e.textContent = pwLock || "Das Passwort stimmt nicht."; e.hidden = false; return; }
+  pwNeedHost = false;
   try{ localStorage.setItem("habich_pw", pw); }catch(x){}
   const cb = pwNext; pwNext = null; if(!pwBoot) back(); pwBoot = false; $("#v-pw").classList.remove("boot"); if(cb) cb(pw);
 }
+$("#b-pwjoin").addEventListener("click", () => { pwBoot = false; pwNext = null; $("#v-pw").classList.remove("boot"); hist.length = 0; hist.push("start", "lobby"); show("lobby", false); });
 $("#b-pwok").addEventListener("click", pwSubmit);
 $("#pwin").addEventListener("keydown", e => { if(e.key === "Enter") pwSubmit(); });
 document.addEventListener("click", e => {
@@ -848,7 +853,7 @@ async function lbStart(create){
   let pw = "";
   if(create){
     pw = pwGet();
-    if(!pw || (LOBBY_URL && (await pwCheck(pw)) !== true)){ needPw(() => lbStart(true)); return; }
+    if(!pw || (LOBBY_URL && (await pwCheck(pw)) !== "host")){ needPw(() => lbStart(true)); return; }
   }
   $("#b-lnew").disabled = $("#b-ljoin").disabled = true;
   try{
@@ -953,11 +958,12 @@ setInterval(() => { if(LB.active) lbSend({t:"ping"}); }, 25000);
   }catch(e){}
 })();
 
-/* Ganzes Spiel einmalig absichern (Einladungslink ?raum= darf ohne Passwort beitreten) */
+/* Ganzes Spiel einmalig absichern; nur Beitreten per Raumcode geht ohne Passwort */
 (function pwBootCheck(){
-  if(!LOBBY_URL || lbParam.get("raum")) return;
+  if(!LOBBY_URL) return;
+  if(lbParam.get("raum")) return;   // Einladungslink: Beitreten geht ohne Passwort
   const toStart = () => { hist.length = 0; hist.push("start"); show("start", false); };
-  const ask = () => { pwBoot = true; pwNext = toStart; $("#v-pw").classList.add("boot"); $("#pwin").value = ""; $("#pwerr").hidden = true; show("pw", false); };
+  const ask = () => { pwBoot = true; pwNeedHost = false; pwNext = toStart; $("#pwtext").textContent = "Bitte gib das Passwort ein."; $("#v-pw").classList.add("boot"); $("#pwin").value = ""; $("#pwerr").hidden = true; show("pw", false); };
   const pw = pwGet();
   if(!pw){ ask(); return; }
   pwCheck(pw).then(ok => { if(ok === false) ask(); });

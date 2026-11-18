@@ -153,6 +153,8 @@ export class Room {
     this.env = env || {};
     this.logic = new RoomLogic();
     this.socks = new Map();   // WebSocket -> Spieler-ID
+    this.ips = new Map();     // WebSocket -> IP (nur für die Sperre)
+    this.joining = new Set();
     // Spielstand überlebt, wenn Cloudflare das Objekt zwischendurch aus dem Speicher nimmt
     state.blockConcurrencyWhile(async () => {
       try {
@@ -163,12 +165,33 @@ export class Room {
   }
   save() { try { this.state.storage.put("logic", JSON.parse(JSON.stringify(this.logic))); } catch (e) {} }
 
+  async limit(op, key, max) {
+    const now = Date.now(), k = "lim:" + key;
+    const d = (await this.state.storage.get(k)) || { fails: 0, lock: 0, strikes: 0, sAt: 0 };
+    if (op === "ok") { d.fails = 0; }
+    else if (op === "fail" && d.lock <= now) {
+      d.fails++;
+      if (d.fails >= max) {
+        d.strikes = (now - d.sAt < 86400000 ? d.strikes : 0) + 1; d.sAt = now;
+        d.lock = now + (d.strikes === 1 ? 15 : 60) * 60000; d.fails = 0;
+      }
+    }
+    if (op !== "check") await this.state.storage.put(k, d);
+    return d.lock > now ? d.lock : 0;
+  }
+
   async fetch(request) {
+    if (new URL(request.url).pathname === "/_limit") {
+      const b = await request.json();
+      return new Response(JSON.stringify({ until: await this.limit(b.op, String(b.key).slice(0, 80), b.max | 0) }));
+    }
+    this.ip = request.headers.get("CF-Connecting-IP") || "?";
     if (request.headers.get("Upgrade") !== "websocket") return new Response("Erwartet WebSocket", { status: 426 });
     const code = new URL(request.url).pathname.split("/").pop().toUpperCase();
     const pair = new WebSocketPair();
     const [client, server] = Object.values(pair);
     server.accept();
+    this.ips.set(server, this.ip);
     server.addEventListener("message", ev => this.onMessage(server, ev, code));
     server.addEventListener("close", () => this.onClose(server));
     server.addEventListener("error", () => this.onClose(server));
@@ -186,20 +209,7 @@ export class Room {
     let m; try { m = JSON.parse(ev.data); } catch (e) { return; }
     if (!m || typeof m.t !== "string") return;
     if (m.t === "ping") return this.send(ws, { t: "pong" });
-    if (m.t === "join") {
-      if (this.socks.has(ws)) return;
-      if (m.create && (!this.env.PASSWORT || String(m.pw || "") !== String(this.env.PASSWORT))) {
-        this.send(ws, { t: "err", msg: this.env.PASSWORT ? "Das Passwort stimmt nicht." : "Auf dem Server ist noch kein Passwort eingerichtet.", fatal: true });
-        try { ws.close(1000, "x"); } catch (e) {} return;
-      }
-      const r = this.logic.join({ name: m.name, pid: m.pid, create: !!m.create, code });
-      if (r.err) { this.send(ws, { t: "err", msg: r.err, fatal: true }); try { ws.close(1000, "x"); } catch (e) {} return; }
-      // alte Verbindung derselben Person ersetzen
-      for (const [w, id] of this.socks) if (id === r.id && w !== ws) { this.socks.delete(w); try { w.close(1000, "neu"); } catch (e) {} }
-      this.socks.set(ws, r.id);
-      this.send(ws, { t: "hello", you: r.id });
-      return this.broadcast();
-    }
+    if (m.t === "join") return this.onJoin(ws, m, code);
     const id = this.socks.get(ws); if (!id) return;
     if (m.t === "leave") { this.socks.delete(ws); this.logic.disconnect(id, true); try { ws.close(1000, "tschüss"); } catch (e) {} return this.broadcast(); }
     const err = this.logic.act(id, m);
@@ -207,7 +217,37 @@ export class Room {
     this.broadcast();
   }
 
+  async onJoin(ws, m, code) {
+    if (this.socks.has(ws) || this.joining.has(ws)) return;
+    this.joining.add(ws);
+    const fail = msg => { this.send(ws, { t: "err", msg, fatal: true }); try { ws.close(1000, "x"); } catch (e) {} };
+    try {
+      const ip = this.ips.get(ws) || "?";
+      if (!m.pid) {
+        const pk = "pw:" + ip, jk = "join:" + ip;
+        if (m.create) {   // Raum anlegen nur mit Passwort
+          let u = await lim(this.env, "check", pk, LIMIT_PW);
+          if (u) return fail(lockText(u));
+          if (!this.env.PASSWORT) return fail("Auf dem Server ist noch kein Passwort eingerichtet.");
+          if (!roleOf(this.env, m.pw)) { u = await lim(this.env, "fail", pk, LIMIT_PW); return fail(u ? lockText(u) : "Das Passwort stimmt nicht."); }
+          await lim(this.env, "ok", pk, LIMIT_PW);
+        } else {          // Beitreten: nur mit existierendem Raumcode, falsche Codes werden gezählt
+          const u = await lim(this.env, "check", jk, LIMIT_JOIN);
+          if (u) return fail(lockText(u));
+          if (!this.logic.created) { const u2 = await lim(this.env, "fail", jk, LIMIT_JOIN); return fail(u2 ? lockText(u2) : "Raum nicht gefunden."); }
+        }
+      }
+      const r = this.logic.join({ name: m.name, pid: m.pid, create: !!m.create, code });
+      if (r.err) return fail(r.err);
+      for (const [w, id] of this.socks) if (id === r.id && w !== ws) { this.socks.delete(w); try { w.close(1000, "neu"); } catch (e) {} }
+      this.socks.set(ws, r.id);
+      this.send(ws, { t: "hello", you: r.id });
+      this.broadcast();
+    } finally { this.joining.delete(ws); }
+  }
+
   onClose(ws) {
+    this.ips.delete(ws);
     const id = this.socks.get(ws); if (!id) return;
     this.socks.delete(ws);
     this.logic.disconnect(id, false);
@@ -218,15 +258,42 @@ export class Room {
 // ------------------------------------------------------------------
 // Worker: leitet /ws/CODE an den passenden Raum weiter
 // ------------------------------------------------------------------
+// Das Passwort (PASSWORT) braucht nur, wer einen Raum anlegt. Beitreten geht mit dem Raumcode.
+function roleOf(env, pw) {
+  return env.PASSWORT && String(pw || "") === String(env.PASSWORT) ? "host" : null;
+}
+
+// ------------------------------------------------------------------
+// Sperre bei zu vielen Fehlversuchen (pro IP): 1. Sperre 15 Minuten, danach je 1 Stunde.
+// Die Zähler liegen im Durable Object "_limiter".
+// ------------------------------------------------------------------
+const LIMIT_PW = 5;      // falsche Passwörter bis zur Sperre
+const LIMIT_JOIN = 10;   // falsche Raumcodes bis zur Sperre
+async function lim(env, op, key, max) {
+  try {
+    const stub = env.ROOM.get(env.ROOM.idFromName("_limiter"));
+    const r = await stub.fetch("https://limiter/_limit", { method: "POST", body: JSON.stringify({ op, key, max }) });
+    return (await r.json()).until || 0;
+  } catch (e) { return 0; }
+}
+const lockText = until => "Zu viele Versuche. Bitte warte noch " + Math.max(1, Math.ceil((until - Date.now()) / 60000)) + " Minuten.";
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const cors = { "access-control-allow-origin": "*", "access-control-allow-headers": "content-type", "access-control-allow-methods": "POST, OPTIONS" };
     if (url.pathname === "/auth") {
       if (request.method === "OPTIONS") return new Response(null, { headers: cors });
-      let ok = false;
-      try { const b = await request.json(); ok = !!env.PASSWORT && String(b.pw || "") === String(env.PASSWORT); } catch (e) {}
-      return new Response(JSON.stringify({ ok }), { headers: { ...cors, "content-type": "application/json" } });
+      const ip = request.headers.get("CF-Connecting-IP") || "?";
+      let role = null, pw = "";
+      try { const b = await request.json(); pw = String(b.pw || ""); } catch (e) {}
+      const hdr = { ...cors, "content-type": "application/json" };
+      const until = await lim(env, "check", "pw:" + ip, LIMIT_PW);
+      if (until) return new Response(JSON.stringify({ ok: false, locked: true, msg: lockText(until) }), { headers: hdr });
+      role = roleOf(env, pw);
+      if (role) await lim(env, "ok", "pw:" + ip, LIMIT_PW);
+      else if (pw) { const u2 = await lim(env, "fail", "pw:" + ip, LIMIT_PW); if (u2) return new Response(JSON.stringify({ ok: false, locked: true, msg: lockText(u2) }), { headers: hdr }); }
+      return new Response(JSON.stringify({ ok: !!role, role }), { headers: hdr });
     }
     const m = url.pathname.match(/^\/ws\/([A-Za-z0-9]{4})$/);
     if (!m) return new Response("Hab ich …auch! Lobby läuft.", { headers: { "content-type": "text/plain; charset=utf-8" } });
